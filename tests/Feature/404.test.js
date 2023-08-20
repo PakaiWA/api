@@ -12,34 +12,35 @@ function genrateURL() {
 }
 
 describe("404 Test", function () {
-	for (let index = 0; index < 10; index++) {
-		it(index + ". 404 Not Found User", async function () {
+	it("404 Not Found User", async function () {
+		for (let index = 0; index < 10; index++) {
 			const result = await supertest(api)
 				.get("/" + genrateURL())
 				.set("Accept", "application/json")
 				.set("Authorization", "Bearer 1121");
 			expect(result.status).toBe(404);
 			expect(result.body.message).toContain("Not Found");
-		});
-	}
-	for (let index = 0; index < 10; index++) {
-		it(index + ". 404 Not Found Member", async function () {
+		}
+	});
+
+	it("404 Not Found Member", async function () {
+		for (let index = 0; index < 10; index++) {
 			const result = await supertest(api)
 				.get("/" + genrateURL())
 				.set("Accept", "application/json")
 				.set("Authorization", "Bearer 1122");
 			expect(result.status).toBe(404);
 			expect(result.body.message).toContain("Not Found");
-		});
-	}
-	for (let index = 0; index < 10; index++) {
-		it(index + ". 404 Not Found Premium", async function () {
+		}
+	});
+	it("404 Not Found Premium", async function () {
+		for (let index = 0; index < 10; index++) {
 			const result = await supertest(api)
 				.get("/" + genrateURL())
 				.set("Accept", "application/json")
 				.set("Authorization", "Bearer 1123");
 			expect(result.status).toBe(404);
 			expect(result.body.message).toContain("Not Found");
-		});
-	}
+		}
+	});
 });
