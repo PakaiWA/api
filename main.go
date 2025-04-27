@@ -11,17 +11,31 @@
 package main
 
 import (
+	"fmt"
+	"github.com/KAnggara75/scc2go"
+	"github.com/go-playground/validator/v10"
+	_ "github.com/jackc/pgx/v5"
 	"github.com/pakaiwa/api/app"
 	"github.com/pakaiwa/api/controller"
 	"github.com/pakaiwa/api/helper"
+	"github.com/pakaiwa/api/repository"
 	"github.com/pakaiwa/api/service"
 	"net/http"
+	"os"
 )
 
+func init() {
+	scc2go.GetEnv(os.Getenv("SCC_URL"), os.Getenv("AUTH"))
+}
+
 func main() {
-	categoryService := service.NewDeviceService()
-	categoryController := controller.NewDeviceController(categoryService)
-	router := app.NewRouter(categoryController)
+
+	db := app.NewDBConn()
+	validate := validator.New()
+	deviceRepository := repository.NewDeviceRepository()
+	deviceService := service.NewDeviceService(deviceRepository, db, validate)
+	deviceController := controller.NewDeviceController(deviceService)
+	router := app.NewRouter(deviceController)
 
 	server := http.Server{
 		Addr:    "localhost:3000",
@@ -29,6 +43,7 @@ func main() {
 		//Handler: middleware.NewAuthMiddleware(router),
 	}
 
+	fmt.Println("Listening on port 3000")
 	err := server.ListenAndServe()
 	helper.PanicIfError(err)
 }

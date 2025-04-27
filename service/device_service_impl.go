@@ -12,31 +12,58 @@ package service
 
 import (
 	"context"
+	"database/sql"
+	"fmt"
+	"github.com/go-playground/validator/v10"
+	"github.com/pakaiwa/api/helper"
 	"github.com/pakaiwa/api/model/api"
+	"github.com/pakaiwa/api/model/entity"
+	"github.com/pakaiwa/api/repository"
 )
 
-type DeviceServiceImpl struct{}
+type DeviceServiceImpl struct {
+	DeviceRepository repository.DeviceRepository
+	DB               *sql.DB
+	Validate         *validator.Validate
+}
 
-func (device DeviceServiceImpl) DeleteDevice(ctx context.Context, id string) {
+func NewDeviceService(deviceRepository repository.DeviceRepository, DB *sql.DB, validate *validator.Validate) DeviceService {
+	return &DeviceServiceImpl{
+		DeviceRepository: deviceRepository,
+		DB:               DB,
+		Validate:         validate,
+	}
+}
+
+func (service *DeviceServiceImpl) DeleteDevice(ctx context.Context, id string) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (device DeviceServiceImpl) GetAllDevices(ctx context.Context) []api.DeviceRs {
+func (service *DeviceServiceImpl) GetAllDevices(ctx context.Context) []api.DeviceRs {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (device DeviceServiceImpl) GetDevice(ctx context.Context, id string) api.DeviceRs {
+func (service *DeviceServiceImpl) GetDevice(ctx context.Context, id string) api.DeviceRs {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (device DeviceServiceImpl) AddDevice(ctx context.Context, req api.DeviceAddRq) api.DeviceRs {
-	//TODO implement me
-	panic("implement me")
-}
+func (service *DeviceServiceImpl) AddDevice(ctx context.Context, req api.DeviceAddRq) api.DeviceRs {
+	fmt.Println("Invoke AddDevice Service")
+	err := service.Validate.Struct(req)
+	helper.PanicIfError(err)
 
-func NewDeviceService() DeviceService {
-	return &DeviceServiceImpl{}
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(tx)
+
+	device := entity.Device{
+		Name: req.DeviceId,
+	}
+
+	device = service.DeviceRepository.AddDevice(ctx, tx, device)
+
+	return api.ToDeviceResponse(device)
 }

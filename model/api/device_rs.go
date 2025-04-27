@@ -10,14 +10,38 @@
 
 package api
 
-import "time"
+import (
+	"fmt"
+	"github.com/pakaiwa/api/model/entity"
+)
 
 type DeviceRs struct {
-	Id                 string    `json:"id"`
-	Status             string    `json:"status"`
-	PhoneNumber        string    `json:"phone_number"`
-	CreatedAt          time.Time `json:"created_at"`
-	ConnectedAt        time.Time `json:"connected_at"`
-	DisconnectedAt     time.Time `json:"disconnected_at"`
-	DisconnectedReason string    `json:"disconnected_reason"`
+	Id                 string `json:"id"`
+	Status             string `json:"status"`
+	PhoneNumber        string `json:"phone_number,omitempty"`
+	CreatedAt          string `json:"created_at"`
+	ConnectedAt        string `json:"connected_at,omitempty"`
+	DisconnectedAt     string `json:"disconnected_at,omitempty"`
+	DisconnectedReason string `json:"disconnected_reason,omitempty"`
+}
+
+func ToDeviceResponse(device entity.Device) DeviceRs {
+	fmt.Println("Invoke ToDeviceResponse")
+	return DeviceRs{
+		Id:                 device.Name,
+		Status:             device.Status,
+		PhoneNumber:        device.PhoneNumber,
+		CreatedAt:          device.CreatedAt,
+		ConnectedAt:        device.ConnectedAt,
+		DisconnectedAt:     device.DisconnectedAt,
+		DisconnectedReason: device.DisconnectedReason,
+	}
+}
+
+func ToDeviceResponses(devices []entity.Device) []DeviceRs {
+	var deviceResponses []DeviceRs
+	for _, device := range devices {
+		deviceResponses = append(deviceResponses, ToDeviceResponse(device))
+	}
+	return deviceResponses
 }

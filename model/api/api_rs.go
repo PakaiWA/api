@@ -20,11 +20,12 @@ type ResponseAPI struct {
 	Code   int         `json:"code"`
 	Status string      `json:"status"`
 	Data   interface{} `json:"data,omitempty"`
-	Meta   interface{} `json:"meta,omitempty"`
+	Meta   Meta        `json:"meta,omitempty"`
 }
 
 type Meta struct {
-	LastKey string `json:"last_key"`
+	LastKey  string `json:"last_key,omitempty"`
+	Location string `json:"location,omitempty"`
 }
 
 func ReadFromRequestBody(request *http.Request, result interface{}) {

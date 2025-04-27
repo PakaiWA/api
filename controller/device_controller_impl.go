@@ -11,7 +11,9 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/julienschmidt/httprouter"
+	"github.com/pakaiwa/api/model/api"
 	"github.com/pakaiwa/api/service"
 	"net/http"
 )
@@ -24,22 +26,60 @@ func NewDeviceController(deviceService service.DeviceService) DeviceController {
 	return &DeviceControllerImpl{DeviceService: deviceService}
 }
 
-func (device DeviceControllerImpl) AddDevice(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-	//TODO implement me
-	panic("implement me")
+func (controller *DeviceControllerImpl) AddDevice(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	fmt.Println("Invoke AddDevice Controller")
+	req := api.DeviceAddRq{}
+	api.ReadFromRequestBody(request, &req)
+
+	fullURL := fmt.Sprintf("https://%s%s/", request.Host, request.RequestURI)
+	res := controller.DeviceService.AddDevice(request.Context(), req)
+	webResponse := api.ResponseAPI{
+		Code:   200,
+		Status: "OK",
+		Data:   res,
+		Meta: api.Meta{
+			Location: fullURL + res.Id,
+		},
+	}
+
+	api.WriteToResponseBody(writer, webResponse)
 }
 
-func (device DeviceControllerImpl) DeleteDevice(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-	//TODO implement me
-	panic("implement me")
+func (controller *DeviceControllerImpl) DeleteDevice(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	deviceId := params.ByName("deviceId")
+	controller.DeviceService.DeleteDevice(request.Context(), deviceId)
+
+	writer.WriteHeader(http.StatusNoContent)
+	webResponse := api.ResponseAPI{
+		Code: 204,
+	}
+
+	api.WriteToResponseBody(writer, webResponse)
 }
 
-func (device DeviceControllerImpl) GetDeviceById(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-	//TODO implement me
-	panic("implement me")
+func (controller *DeviceControllerImpl) GetDeviceById(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	deviceId := params.ByName("deviceId")
+
+	res := controller.DeviceService.GetDevice(request.Context(), deviceId)
+
+	webResponse := api.ResponseAPI{
+		Code:   200,
+		Status: "OK",
+		Data:   res,
+	}
+
+	api.WriteToResponseBody(writer, webResponse)
 }
 
-func (device DeviceControllerImpl) GetAllDevices(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-	//TODO implement me
-	panic("implement me")
+func (controller *DeviceControllerImpl) GetAllDevices(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+
+	res := controller.DeviceService.GetAllDevices(request.Context())
+
+	webResponse := api.ResponseAPI{
+		Code:   200,
+		Status: "OK",
+		Data:   res,
+	}
+
+	api.WriteToResponseBody(writer, webResponse)
 }

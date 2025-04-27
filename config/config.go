@@ -10,8 +10,12 @@
 
 package config
 
-import "github.com/spf13/viper"
+import (
+	"fmt"
+	"github.com/spf13/viper"
+)
 
 func GetDBCon() string {
+	fmt.Println(viper.Get("db.pakaiwa.host"))
 	return viper.GetString("db.pakaiwa.host")
 }

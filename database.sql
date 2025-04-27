@@ -10,7 +10,7 @@ create table if not exists pakaiwa.device.user_devices
 (
     uuid                varchar(200) not null,
     name                varchar(100),
-    status              varchar(25),
+    status              varchar(25) default 'disconnected',
     phone_number        varchar(25),
     created_at          timestamp default LOCALTIMESTAMP,
     connected_at        timestamp,
@@ -19,3 +19,5 @@ create table if not exists pakaiwa.device.user_devices
 );
 
 create unique index if not exists user_device_pk on pakaiwa.device.user_devices (uuid);
+
+grant all on pakaiwa.device.user_devices to kanggara;
