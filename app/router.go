@@ -21,8 +21,8 @@ func NewRouter(deviceController controller.DeviceController) *httprouter.Router 
 
 	router.POST("/devices", deviceController.AddDevice)
 	router.GET("/devices", deviceController.GetAllDevices)
-	router.GET("/devices/:categoryId", deviceController.GetDeviceById)
-	router.DELETE("/devices/:categoryId", deviceController.DeleteDevice)
+	router.GET("/devices/:deviceId", deviceController.GetDeviceById)
+	router.DELETE("/devices/:deviceId", deviceController.DeleteDevice)
 
 	router.PanicHandler = exception.ErrorHandler
 

@@ -13,10 +13,12 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/pakaiwa/api/helper"
 	"github.com/pakaiwa/api/model/entity"
+	"github.com/pakaiwa/api/utils"
 )
 
 type DeviceRepositoryImpl struct{}
@@ -48,9 +50,40 @@ func (repository *DeviceRepositoryImpl) DeleteDevice(ctx context.Context, tx *sq
 	panic("implement me")
 }
 
-func (repository *DeviceRepositoryImpl) FindDeviceById(ctx context.Context, tx *sql.Tx, categoryId int) (entity.Device, error) {
-	//TODO implement me
-	panic("implement me")
+func (repository *DeviceRepositoryImpl) FindDeviceById(ctx context.Context, tx *sql.Tx, deviceId string) (entity.Device, error) {
+	fmt.Println("Invoke FindDeviceById Repository")
+
+	SQL := "select name, status, phone_number, created_at, connected_at, disconnected_at, disconnected_reason from device.user_devices where name = $1"
+	rows, err := tx.QueryContext(ctx, SQL, deviceId)
+	helper.PanicIfError(err)
+	defer rows.Close()
+
+	var connectedAt sql.NullString
+	var disconnectedAt sql.NullString
+	var disconnectedReason sql.NullString
+
+	device := entity.Device{}
+
+	if rows.Next() {
+		err := rows.Scan(
+			&device.Name,
+			&device.Status,
+			&device.PhoneNumber,
+			&device.CreatedAt,
+			&connectedAt,
+			&disconnectedAt,
+			&disconnectedReason,
+		)
+		helper.PanicIfError(err)
+
+		device.ConnectedAt = utils.SafeString(connectedAt)
+		device.DisconnectedAt = utils.SafeString(disconnectedAt)
+		device.DisconnectedReason = utils.SafeString(disconnectedReason)
+
+		return device, nil
+	} else {
+		return device, errors.New("error: Device not found")
+	}
 }
 
 func (repository *DeviceRepositoryImpl) FindAllDevice(ctx context.Context, tx *sql.Tx) []entity.Device {

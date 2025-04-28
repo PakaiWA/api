@@ -15,6 +15,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/go-playground/validator/v10"
+	"github.com/pakaiwa/api/exception"
 	"github.com/pakaiwa/api/helper"
 	"github.com/pakaiwa/api/model/api"
 	"github.com/pakaiwa/api/model/entity"
@@ -46,8 +47,18 @@ func (service *DeviceServiceImpl) GetAllDevices(ctx context.Context) []api.Devic
 }
 
 func (service *DeviceServiceImpl) GetDevice(ctx context.Context, id string) api.DeviceRs {
-	//TODO implement me
-	panic("implement me")
+	fmt.Println("Invoke GetDevice Service")
+
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(tx)
+
+	devices, err := service.DeviceRepository.FindDeviceById(ctx, tx, id)
+	if err != nil {
+		panic(exception.NewNotFoundError(err.Error()))
+	}
+
+	return api.ToDeviceResponse(devices)
 }
 
 func (service *DeviceServiceImpl) AddDevice(ctx context.Context, req api.DeviceAddRq) api.DeviceRs {
