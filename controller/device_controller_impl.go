@@ -15,6 +15,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"github.com/pakaiwa/api/model/api"
 	"github.com/pakaiwa/api/service"
+	"github.com/pakaiwa/api/utils"
 	"net/http"
 )
 
@@ -31,10 +32,9 @@ func (controller *DeviceControllerImpl) AddDevice(writer http.ResponseWriter, re
 	req := api.DeviceAddRq{}
 	api.ReadFromRequestBody(request, &req)
 
-	fullURL := fmt.Sprintf("https://%s%s/", request.Host, request.RequestURI)
 	res := controller.DeviceService.AddDevice(request.Context(), req)
 	webResponse := api.ResponseAPI{
-		Code:   200,
+		Code:   http.StatusCreated,
 		Status: "OK",
 		Data:   res,
 		Meta: api.Meta{
@@ -42,7 +42,7 @@ func (controller *DeviceControllerImpl) AddDevice(writer http.ResponseWriter, re
 		},
 	}
 
-	api.WriteToResponseBody(writer, webResponse)
+	api.WriteToResponseBody(writer, webResponse.Code, webResponse)
 }
 
 func (controller *DeviceControllerImpl) DeleteDevice(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
@@ -54,7 +54,7 @@ func (controller *DeviceControllerImpl) DeleteDevice(writer http.ResponseWriter,
 		Code: 204,
 	}
 
-	api.WriteToResponseBody(writer, webResponse)
+	api.WriteToResponseBody(writer, webResponse.Code, webResponse)
 }
 
 func (controller *DeviceControllerImpl) GetDeviceById(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
@@ -68,7 +68,8 @@ func (controller *DeviceControllerImpl) GetDeviceById(writer http.ResponseWriter
 		Data:   res,
 	}
 
-	api.WriteToResponseBody(writer, webResponse)
+	api.WriteToResponseBody(writer, webResponse.Code, webResponse)
+
 }
 
 func (controller *DeviceControllerImpl) GetAllDevices(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
@@ -81,5 +82,6 @@ func (controller *DeviceControllerImpl) GetAllDevices(writer http.ResponseWriter
 		Data:   res,
 	}
 
-	api.WriteToResponseBody(writer, webResponse)
+	api.WriteToResponseBody(writer, webResponse.Code, webResponse)
+
 }
