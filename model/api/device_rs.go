@@ -39,6 +39,7 @@ func ToDeviceResponse(device entity.Device) DeviceRs {
 }
 
 func ToDeviceResponses(devices []entity.Device) []DeviceRs {
+	fmt.Println("Invoke ToDeviceResponses")
 	var deviceResponses []DeviceRs
 	for _, device := range devices {
 		deviceResponses = append(deviceResponses, ToDeviceResponse(device))

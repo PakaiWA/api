@@ -20,5 +20,5 @@ type DeviceRepository interface {
 	AddDevice(ctx context.Context, tx *sql.Tx, device entity.Device) entity.Device
 	DeleteDevice(ctx context.Context, tx *sql.Tx, device entity.Device)
 	FindDeviceById(ctx context.Context, tx *sql.Tx, deviceId string) (entity.Device, error)
-	FindAllDevice(ctx context.Context, tx *sql.Tx) []entity.Device
+	GetAllDevices(ctx context.Context, tx *sql.Tx) []entity.Device
 }

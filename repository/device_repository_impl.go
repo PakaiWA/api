@@ -86,7 +86,38 @@ func (repository *DeviceRepositoryImpl) FindDeviceById(ctx context.Context, tx *
 	}
 }
 
-func (repository *DeviceRepositoryImpl) FindAllDevice(ctx context.Context, tx *sql.Tx) []entity.Device {
-	//TODO implement me
-	panic("implement me")
+func (repository *DeviceRepositoryImpl) GetAllDevices(ctx context.Context, tx *sql.Tx) []entity.Device {
+	fmt.Println("Invoke GetAllDevices Repository")
+
+	SQL := "select name, status, phone_number, created_at, connected_at, disconnected_at, disconnected_reason from device.user_devices"
+	rows, err := tx.QueryContext(ctx, SQL)
+	helper.PanicIfError(err)
+	defer rows.Close()
+
+	var connectedAt sql.NullString
+	var disconnectedAt sql.NullString
+	var disconnectedReason sql.NullString
+
+	var devices []entity.Device
+
+	for rows.Next() {
+		device := entity.Device{}
+		err := rows.Scan(
+			&device.Name,
+			&device.Status,
+			&device.PhoneNumber,
+			&device.CreatedAt,
+			&connectedAt,
+			&disconnectedAt,
+			&disconnectedReason,
+		)
+		helper.PanicIfError(err)
+		device.ConnectedAt = utils.SafeString(connectedAt)
+		device.DisconnectedAt = utils.SafeString(disconnectedAt)
+		device.DisconnectedReason = utils.SafeString(disconnectedReason)
+
+		devices = append(devices, device)
+	}
+
+	return devices
 }

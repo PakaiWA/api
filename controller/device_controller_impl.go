@@ -75,6 +75,7 @@ func (controller *DeviceControllerImpl) GetDeviceById(writer http.ResponseWriter
 }
 
 func (controller *DeviceControllerImpl) GetAllDevices(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	fmt.Println("Invoke GetAllDevices Controller")
 
 	res := controller.DeviceService.GetAllDevices(request.Context())
 
