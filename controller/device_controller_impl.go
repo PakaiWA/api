@@ -38,7 +38,7 @@ func (controller *DeviceControllerImpl) AddDevice(writer http.ResponseWriter, re
 		Status: "OK",
 		Data:   res,
 		Meta: api.Meta{
-			Location: fullURL + res.Id,
+			Location: utils.GetMetaLocation(request) + res.Id,
 		},
 	}
 
