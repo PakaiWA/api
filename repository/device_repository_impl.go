@@ -46,8 +46,11 @@ func (repository *DeviceRepositoryImpl) AddDevice(ctx context.Context, tx *sql.T
 }
 
 func (repository *DeviceRepositoryImpl) DeleteDevice(ctx context.Context, tx *sql.Tx, device entity.Device) {
-	//TODO implement me
-	panic("implement me")
+	fmt.Println("Invoke DeleteDevice Repository")
+
+	SQL := "delete from device.user_devices where name = $1"
+	_, err := tx.ExecContext(ctx, SQL, device.Name)
+	helper.PanicIfError(err)
 }
 
 func (repository *DeviceRepositoryImpl) FindDeviceById(ctx context.Context, tx *sql.Tx, deviceId string) (entity.Device, error) {

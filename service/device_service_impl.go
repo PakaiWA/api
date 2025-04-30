@@ -37,8 +37,19 @@ func NewDeviceService(deviceRepository repository.DeviceRepository, DB *sql.DB, 
 }
 
 func (service *DeviceServiceImpl) DeleteDevice(ctx context.Context, id string) {
-	//TODO implement me
-	panic("implement me")
+	fmt.Println("Invoke DeleteDevice Service")
+
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(tx)
+
+	device, err := service.DeviceRepository.FindDeviceById(ctx, tx, id)
+	fmt.Println(device)
+	if err != nil {
+		panic(exception.NewNotFoundError(err.Error()))
+	}
+
+	service.DeviceRepository.DeleteDevice(ctx, tx, device)
 }
 
 func (service *DeviceServiceImpl) GetAllDevices(ctx context.Context) []api.DeviceRs {
