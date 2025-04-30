@@ -37,7 +37,7 @@ func (controller *DeviceControllerImpl) AddDevice(writer http.ResponseWriter, re
 		Code:   http.StatusCreated,
 		Status: "OK",
 		Data:   res,
-		Meta: api.Meta{
+		Meta: &api.Meta{
 			Location: utils.GetMetaLocation(request) + res.Id,
 		},
 	}
@@ -68,6 +68,7 @@ func (controller *DeviceControllerImpl) GetDeviceById(writer http.ResponseWriter
 		Code:   200,
 		Status: "OK",
 		Data:   res,
+		Meta:   nil,
 	}
 
 	api.WriteToResponseBody(writer, webResponse.Code, webResponse)
@@ -83,6 +84,7 @@ func (controller *DeviceControllerImpl) GetAllDevices(writer http.ResponseWriter
 		Code:   200,
 		Status: "OK",
 		Data:   res,
+		Meta:   nil,
 	}
 
 	api.WriteToResponseBody(writer, webResponse.Code, webResponse)

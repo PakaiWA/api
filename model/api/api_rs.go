@@ -20,7 +20,7 @@ type ResponseAPI struct {
 	Code   int         `json:"code"`
 	Status string      `json:"status"`
 	Data   interface{} `json:"data,omitempty"`
-	Meta   Meta        `json:"meta,omitempty"`
+	Meta   *Meta       `json:"meta,omitempty"`
 }
 
 type Meta struct {
