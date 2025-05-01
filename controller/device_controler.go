@@ -16,6 +16,7 @@ import (
 )
 
 type DeviceController interface {
+	RegisterRoutes(router *httprouter.Router)
 	AddDevice(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
 	DeleteDevice(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
 	GetDeviceById(writer http.ResponseWriter, request *http.Request, params httprouter.Params)

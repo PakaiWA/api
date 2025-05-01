@@ -15,8 +15,10 @@ import (
 	"github.com/KAnggara75/scc2go"
 	"github.com/go-playground/validator/v10"
 	_ "github.com/jackc/pgx/v5"
+	"github.com/julienschmidt/httprouter"
 	"github.com/pakaiwa/api/app"
 	"github.com/pakaiwa/api/controller"
+	"github.com/pakaiwa/api/exception"
 	"github.com/pakaiwa/api/helper"
 	"github.com/pakaiwa/api/repository"
 	"github.com/pakaiwa/api/service"
@@ -29,20 +31,19 @@ func init() {
 }
 
 func main() {
-
 	db := app.NewDBConn()
+	router := httprouter.New()
 	validate := validator.New()
-	deviceRepository := repository.NewDeviceRepository()
-	deviceService := service.NewDeviceService(deviceRepository, db, validate)
-	deviceController := controller.NewDeviceController(deviceService)
-	router := app.NewRouter(deviceController)
+
+	deviceController := controller.NewDeviceController(service.NewDeviceService(repository.NewDeviceRepository(), db, validate))
+	deviceController.RegisterRoutes(router)
 
 	server := http.Server{
 		Addr:    "localhost:3000",
 		Handler: router,
-		//Handler: middleware.NewAuthMiddleware(router),
 	}
 
+	router.PanicHandler = exception.ErrorHandler
 	fmt.Println("Listening on port 3000")
 	err := server.ListenAndServe()
 	helper.PanicIfError(err)

@@ -27,6 +27,13 @@ func NewDeviceController(deviceService service.DeviceService) DeviceController {
 	return &DeviceControllerImpl{DeviceService: deviceService}
 }
 
+func (controller *DeviceControllerImpl) RegisterRoutes(router *httprouter.Router) {
+	router.POST("/devices", controller.AddDevice)
+	router.GET("/devices", controller.GetAllDevices)
+	router.GET("/devices/:deviceId", controller.GetDeviceById)
+	router.DELETE("/devices/:deviceId", controller.DeleteDevice)
+}
+
 func (controller *DeviceControllerImpl) AddDevice(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 	fmt.Println("Invoke AddDevice Controller")
 	req := api.DeviceAddRq{}

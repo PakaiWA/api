@@ -44,7 +44,6 @@ func (service *DeviceServiceImpl) DeleteDevice(ctx context.Context, id string) {
 	defer helper.CommitOrRollback(tx)
 
 	device, err := service.DeviceRepository.FindDeviceById(ctx, tx, id)
-	fmt.Println(device)
 	if err != nil {
 		panic(exception.NewNotFoundError(err.Error()))
 	}
@@ -74,12 +73,12 @@ func (service *DeviceServiceImpl) GetDevice(ctx context.Context, id string) api.
 	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx)
 
-	devices, err := service.DeviceRepository.FindDeviceById(ctx, tx, id)
+	device, err := service.DeviceRepository.FindDeviceById(ctx, tx, id)
 	if err != nil {
 		panic(exception.NewNotFoundError(err.Error()))
 	}
 
-	return api.ToDeviceResponse(devices)
+	return api.ToDeviceResponse(device)
 }
 
 func (service *DeviceServiceImpl) AddDevice(ctx context.Context, req api.DeviceAddRq) api.DeviceRs {

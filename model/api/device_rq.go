@@ -11,5 +11,5 @@
 package api
 
 type DeviceAddRq struct {
-	DeviceId string `validate:"required,min=1,max=200" json:"device_id"`
+	DeviceId string `validate:"required,min=6,max=100" json:"device_id"`
 }
