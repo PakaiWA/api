@@ -10,7 +10,7 @@
 
 package api
 
-type CreateUserRq struct {
+type UserRq struct {
 	Email    string `validate:"required,email" json:"email"`
 	Password string `validate:"required,min=6,max=100" json:"password"`
 }

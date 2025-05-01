@@ -32,7 +32,7 @@ func (controller *UserControllerImpl) RegisterRoutes(router *httprouter.Router) 
 
 func (controller *UserControllerImpl) CreateUser(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 	fmt.Println("Invoke CreateUser Controller")
-	req := api.CreateUserRq{}
+	req := api.UserRq{}
 	api.ReadFromRequestBody(request, &req)
 
 	res := controller.UserService.CreateUser(request.Context(), req)

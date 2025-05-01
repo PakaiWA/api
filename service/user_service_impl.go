@@ -37,7 +37,7 @@ func NewUserService(repo repository.UserRepo, db *sql.DB, validate *validator.Va
 	}
 }
 
-func (service UserServiceImpl) CreateUser(ctx context.Context, req api.CreateUserRq) api.UserRs {
+func (service UserServiceImpl) CreateUser(ctx context.Context, req api.UserRq) api.UserRs {
 	fmt.Println("Invoke CreateUser Service")
 	err := service.Validate.Struct(req)
 	helper.PanicIfError(err)
