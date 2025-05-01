@@ -15,7 +15,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/google/uuid"
 	"github.com/pakaiwa/api/helper"
 	"github.com/pakaiwa/api/model/entity"
 	"github.com/pakaiwa/api/utils"
@@ -30,7 +29,7 @@ func NewDeviceRepository() DeviceRepository {
 func (repository *DeviceRepositoryImpl) AddDevice(ctx context.Context, tx *sql.Tx, device entity.Device) entity.Device {
 	fmt.Println("Invoke AddDevice Repository")
 
-	deviceId := uuid.New()
+	deviceId := utils.GenerateUUID()
 
 	SQL := "insert into device.user_devices (uuid, name) values ($1, $2) RETURNING name, status, created_at"
 
@@ -59,7 +58,12 @@ func (repository *DeviceRepositoryImpl) FindDeviceById(ctx context.Context, tx *
 	SQL := "select name, status, phone_number, created_at, connected_at, disconnected_at, disconnected_reason from device.user_devices where name = $1"
 	rows, err := tx.QueryContext(ctx, SQL, deviceId)
 	helper.PanicIfError(err)
-	defer rows.Close()
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			helper.PanicIfError(err)
+		}
+	}(rows)
 
 	var connectedAt sql.NullString
 	var disconnectedAt sql.NullString
@@ -95,7 +99,12 @@ func (repository *DeviceRepositoryImpl) GetAllDevices(ctx context.Context, tx *s
 	SQL := "select name, status, phone_number, created_at, connected_at, disconnected_at, disconnected_reason from device.user_devices"
 	rows, err := tx.QueryContext(ctx, SQL)
 	helper.PanicIfError(err)
-	defer rows.Close()
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			helper.PanicIfError(err)
+		}
+	}(rows)
 
 	var connectedAt sql.NullString
 	var disconnectedAt sql.NullString

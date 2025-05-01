@@ -18,6 +18,10 @@ import (
 
 func ErrorHandler(writer http.ResponseWriter, request *http.Request, err interface{}) {
 
+	if badRequestError(writer, request, err) {
+		return
+	}
+
 	if notFoundError(writer, request, err) {
 		return
 	}
@@ -39,6 +43,22 @@ func validationErrors(writer http.ResponseWriter, request *http.Request, err int
 		}
 
 		api.WriteToResponseBody(writer, http.StatusBadRequest, webResponse)
+		return true
+	} else {
+		return false
+	}
+}
+
+func badRequestError(writer http.ResponseWriter, request *http.Request, err interface{}) bool {
+	exception, ok := err.(BadRequestError)
+	if ok {
+		webResponse := api.ResponseAPI{
+			Code:   http.StatusBadRequest,
+			Status: "BAD REQUEST",
+			Data:   exception.Error,
+		}
+
+		api.WriteToResponseBody(writer, webResponse.Code, webResponse)
 		return true
 	} else {
 		return false

@@ -19,3 +19,7 @@ func GetDBCon() string {
 	fmt.Println(viper.Get("db.pakaiwa.host"))
 	return viper.GetString("db.pakaiwa.host")
 }
+
+func GetJWTKey() []byte {
+	return []byte(viper.GetString("app.jwt.sign_key"))
+}

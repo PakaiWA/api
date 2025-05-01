@@ -38,6 +38,9 @@ func main() {
 	deviceController := controller.NewDeviceController(service.NewDeviceService(repository.NewDeviceRepository(), db, validate))
 	deviceController.RegisterRoutes(router)
 
+	userController := controller.NewUserController(service.NewUserService(repository.NewUserRepo(), db, validate))
+	userController.RegisterRoutes(router)
+
 	server := http.Server{
 		Addr:    "localhost:3000",
 		Handler: router,

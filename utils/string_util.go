@@ -10,11 +10,18 @@
 
 package utils
 
-import "database/sql"
+import (
+	"database/sql"
+	"github.com/google/uuid"
+)
 
 func SafeString(ns sql.NullString) string {
 	if ns.Valid {
 		return ns.String
 	}
 	return ""
+}
+
+func GenerateUUID() string {
+	return "pwa-" + uuid.New().String()
 }
