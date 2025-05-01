@@ -57,3 +57,27 @@ func AuthMiddleware(next httprouter.Handle) httprouter.Handle {
 		next(w, r.WithContext(ctx), ps)
 	}
 }
+
+func AdminMiddleware(next httprouter.Handle) httprouter.Handle {
+	res := api.ResponseAPI{
+		Code:   http.StatusUnauthorized,
+		Status: "UNAUTHORIZED",
+	}
+
+	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+		authHeader := r.Header.Get("Authorization")
+		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
+			api.WriteToResponseBody(w, res.Code, res)
+			return
+		}
+
+		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+
+		if tokenString != config.GetAdminToken() {
+			api.WriteToResponseBody(w, res.Code, res)
+			return
+		}
+
+		next(w, r, ps)
+	}
+}

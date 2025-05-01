@@ -24,6 +24,10 @@ func GetJWTKey() []byte {
 	return []byte(viper.GetString("app.jwt.sign_key"))
 }
 
+func GetAdminToken() string {
+	return viper.GetString("app.admin.token")
+}
+
 func GetAllDevicesSQL() string {
 	return viper.GetString("app.sql.getAllDevices")
 }

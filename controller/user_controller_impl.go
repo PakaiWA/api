@@ -13,6 +13,7 @@ package controller
 import (
 	"fmt"
 	"github.com/julienschmidt/httprouter"
+	"github.com/pakaiwa/api/middleware"
 	"github.com/pakaiwa/api/model/api"
 	"github.com/pakaiwa/api/service"
 	"net/http"
@@ -27,8 +28,8 @@ func NewUserController(userService service.UserService) UserController {
 }
 
 func (controller *UserControllerImpl) RegisterRoutes(router *httprouter.Router) {
-	router.POST("/login", controller.Login)
-	router.POST("/register", controller.CreateUser)
+	router.POST("/login", middleware.AdminMiddleware(controller.Login))
+	router.POST("/register", middleware.AdminMiddleware(controller.CreateUser))
 }
 
 func (controller *UserControllerImpl) Login(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
