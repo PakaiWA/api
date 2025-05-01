@@ -39,8 +39,8 @@ func (repo UserRepoImpl) CreateUser(ctx context.Context, tx *sql.Tx, user entity
 
 	helper.PanicIfError(err)
 	user.Uuid = uuid
-	user.Password = ""
-	fmt.Println("Success create user", user)
+	user.Password = "" // Clear sensitive data
+	fmt.Printf("Success create user with UUID: %s and Email: %s\n", user.Uuid, user.Email)
 	return user
 }
 
