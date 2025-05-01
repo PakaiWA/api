@@ -31,7 +31,7 @@ func (repo UserRepoImpl) CreateUser(ctx context.Context, tx *sql.Tx, user entity
 	uuid := utils.GenerateUUID()
 
 	SQL := "insert into management.users (uuid, email, password) values ($1, $2, $3)"
-	fmt.Println(SQL, uuid, user.Email, user.Password)
+	fmt.Println(SQL, uuid, user.Email, "[REDACTED]")
 	_, err := tx.ExecContext(ctx, SQL, uuid, user.Email, user.Password)
 	if err != nil {
 		helper.PanicIfError(err)
