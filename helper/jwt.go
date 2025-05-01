@@ -22,10 +22,13 @@ func GenerateJWT(user entity.User) (string, error) {
 
 	jwtKey := config.GetJWTKey()
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"email": user.Email,
-		"iat":   time.Now().Unix(),
-	})
+	token := jwt.NewWithClaims(
+		jwt.SigningMethodHS256,
+		jwt.MapClaims{
+			"email": user.Email,
+			"iat":   time.Now().Unix(),
+		},
+	)
 
 	tokenString, err := token.SignedString(jwtKey)
 

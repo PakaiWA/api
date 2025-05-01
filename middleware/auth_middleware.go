@@ -11,24 +11,49 @@
 package middleware
 
 import (
+	"context"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/julienschmidt/httprouter"
+	"github.com/pakaiwa/api/config"
 	"github.com/pakaiwa/api/model/api"
 	"net/http"
 	"strings"
 )
 
+type PakaiWAClaim struct {
+	Email string `json:"email"`
+	Iat   int    `json:"iat"`
+	jwt.MapClaims
+}
+
 func AuthMiddleware(next httprouter.Handle) httprouter.Handle {
+	res := api.ResponseAPI{
+		Code:   http.StatusUnauthorized,
+		Status: "UNAUTHORIZED",
+	}
+
 	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-		token := r.Header.Get("Authorization")
-		token = strings.TrimPrefix(token, "Bearer ")
-		if token != "RAHASIA" {
-			res := api.ResponseAPI{
-				Code:   http.StatusUnauthorized,
-				Status: "UNAUTHORIZED",
-			}
+		authHeader := r.Header.Get("Authorization")
+		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
 			api.WriteToResponseBody(w, res.Code, res)
 			return
 		}
-		next(w, r, ps)
+
+		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+		claims := &PakaiWAClaim{}
+		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+			return config.GetJWTKey(), nil
+		})
+
+		if err != nil || !token.Valid {
+			api.WriteToResponseBody(w, res.Code, res)
+			return
+		}
+
+		// TODO: check if claims is valid
+
+		// save claims to context
+		ctx := context.WithValue(r.Context(), "userEmail", claims.Email)
+		next(w, r.WithContext(ctx), ps)
 	}
 }
