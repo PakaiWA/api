@@ -13,6 +13,7 @@ package controller
 import (
 	"fmt"
 	"github.com/julienschmidt/httprouter"
+	"github.com/pakaiwa/api/middleware"
 	"github.com/pakaiwa/api/model/api"
 	"github.com/pakaiwa/api/service"
 	"github.com/pakaiwa/api/utils"
@@ -28,10 +29,10 @@ func NewDeviceController(deviceService service.DeviceService) DeviceController {
 }
 
 func (controller *DeviceControllerImpl) RegisterRoutes(router *httprouter.Router) {
-	router.POST("/devices", controller.AddDevice)
-	router.GET("/devices", controller.GetAllDevices)
-	router.GET("/devices/:deviceId", controller.GetDeviceById)
-	router.DELETE("/devices/:deviceId", controller.DeleteDevice)
+	router.POST("/devices", middleware.AuthMiddleware(controller.AddDevice))
+	router.GET("/devices", middleware.AuthMiddleware(controller.GetAllDevices))
+	router.GET("/devices/:deviceId", middleware.AuthMiddleware(controller.GetDeviceById))
+	router.DELETE("/devices/:deviceId", middleware.AuthMiddleware(controller.DeleteDevice))
 }
 
 func (controller *DeviceControllerImpl) AddDevice(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
