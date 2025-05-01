@@ -15,6 +15,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/pakaiwa/api/config"
 	"github.com/pakaiwa/api/helper"
 	"github.com/pakaiwa/api/model/entity"
 	"github.com/pakaiwa/api/utils"
@@ -47,16 +48,16 @@ func (repository *DeviceRepositoryImpl) AddDevice(ctx context.Context, tx *sql.T
 func (repository *DeviceRepositoryImpl) DeleteDevice(ctx context.Context, tx *sql.Tx, device entity.Device) {
 	fmt.Println("Invoke DeleteDevice Repository")
 
-	SQL := "delete from management.user_devices where name = $1"
-	_, err := tx.ExecContext(ctx, SQL, device.Name)
+	SQL := config.GetDeleteDeviceSQL()
+	_, err := tx.ExecContext(ctx, SQL, device.Name, ctx.Value("userEmail").(string))
 	helper.PanicIfError(err)
 }
 
 func (repository *DeviceRepositoryImpl) FindDeviceById(ctx context.Context, tx *sql.Tx, deviceId string) (entity.Device, error) {
 	fmt.Println("Invoke FindDeviceById Repository")
 
-	SQL := "select name, status, phone_number, created_at, connected_at, disconnected_at, disconnected_reason from management.user_devices where name = $1"
-	rows, err := tx.QueryContext(ctx, SQL, deviceId)
+	SQL := config.GetDeviceByIdSQL()
+	rows, err := tx.QueryContext(ctx, SQL, deviceId, ctx.Value("userEmail").(string))
 	helper.PanicIfError(err)
 	defer func(rows *sql.Rows) {
 		err := rows.Close()
@@ -96,8 +97,8 @@ func (repository *DeviceRepositoryImpl) FindDeviceById(ctx context.Context, tx *
 func (repository *DeviceRepositoryImpl) GetAllDevices(ctx context.Context, tx *sql.Tx) []entity.Device {
 	fmt.Println("Invoke GetAllDevices Repository")
 
-	SQL := "select name, status, phone_number, created_at, connected_at, disconnected_at, disconnected_reason from management.user_devices"
-	rows, err := tx.QueryContext(ctx, SQL)
+	SQL := config.GetAllDevicesSQL()
+	rows, err := tx.QueryContext(ctx, SQL, ctx.Value("userEmail").(string))
 	helper.PanicIfError(err)
 	defer func(rows *sql.Rows) {
 		err := rows.Close()

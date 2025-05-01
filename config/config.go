@@ -23,3 +23,23 @@ func GetDBCon() string {
 func GetJWTKey() []byte {
 	return []byte(viper.GetString("app.jwt.sign_key"))
 }
+
+func GetAllDevicesSQL() string {
+	return viper.GetString("app.sql.getAllDevices")
+}
+
+func GetDeviceByIdSQL() string {
+	return viper.GetString("app.sql.getDeviceById")
+}
+
+func GetDeleteDeviceSQL() string {
+	return viper.GetString("app.sql.deleteDeviceById")
+}
+
+func GetAddDeviceSQL() string {
+	return viper.GetString("app.sql.addDevice")
+}
+
+func GetCountDeviceSQL() string {
+	return viper.GetString("app.sql.countDeviceById")
+}
