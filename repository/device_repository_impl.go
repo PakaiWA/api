@@ -31,7 +31,7 @@ func (repository *DeviceRepositoryImpl) AddDevice(ctx context.Context, tx *sql.T
 
 	deviceId := utils.GenerateUUID()
 
-	SQL := "insert into device.user_devices (uuid, name) values ($1, $2) RETURNING name, status, created_at"
+	SQL := "insert into management.user_devices (uuid, name) values ($1, $2) RETURNING name, status, created_at"
 
 	fmt.Println(SQL, deviceId, device.Name)
 
@@ -47,7 +47,7 @@ func (repository *DeviceRepositoryImpl) AddDevice(ctx context.Context, tx *sql.T
 func (repository *DeviceRepositoryImpl) DeleteDevice(ctx context.Context, tx *sql.Tx, device entity.Device) {
 	fmt.Println("Invoke DeleteDevice Repository")
 
-	SQL := "delete from device.user_devices where name = $1"
+	SQL := "delete from management.user_devices where name = $1"
 	_, err := tx.ExecContext(ctx, SQL, device.Name)
 	helper.PanicIfError(err)
 }
@@ -55,7 +55,7 @@ func (repository *DeviceRepositoryImpl) DeleteDevice(ctx context.Context, tx *sq
 func (repository *DeviceRepositoryImpl) FindDeviceById(ctx context.Context, tx *sql.Tx, deviceId string) (entity.Device, error) {
 	fmt.Println("Invoke FindDeviceById Repository")
 
-	SQL := "select name, status, phone_number, created_at, connected_at, disconnected_at, disconnected_reason from device.user_devices where name = $1"
+	SQL := "select name, status, phone_number, created_at, connected_at, disconnected_at, disconnected_reason from management.user_devices where name = $1"
 	rows, err := tx.QueryContext(ctx, SQL, deviceId)
 	helper.PanicIfError(err)
 	defer func(rows *sql.Rows) {
@@ -96,7 +96,7 @@ func (repository *DeviceRepositoryImpl) FindDeviceById(ctx context.Context, tx *
 func (repository *DeviceRepositoryImpl) GetAllDevices(ctx context.Context, tx *sql.Tx) []entity.Device {
 	fmt.Println("Invoke GetAllDevices Repository")
 
-	SQL := "select name, status, phone_number, created_at, connected_at, disconnected_at, disconnected_reason from device.user_devices"
+	SQL := "select name, status, phone_number, created_at, connected_at, disconnected_at, disconnected_reason from management.user_devices"
 	rows, err := tx.QueryContext(ctx, SQL)
 	helper.PanicIfError(err)
 	defer func(rows *sql.Rows) {
