@@ -27,22 +27,32 @@ func NewDeviceRepository() DeviceRepository {
 	return &DeviceRepositoryImpl{}
 }
 
-func (repository *DeviceRepositoryImpl) AddDevice(ctx context.Context, tx *sql.Tx, device entity.Device) entity.Device {
+func (repository *DeviceRepositoryImpl) AddDevice(ctx context.Context, tx *sql.Tx, device entity.Device) (entity.Device, error) {
 	fmt.Println("Invoke AddDevice Repository")
 
+	var count int
+	CountDeviceSQL := config.GetCountDeviceSQL()
+	err := tx.QueryRowContext(ctx, CountDeviceSQL, device.Name, ctx.Value("userEmail").(string)).Scan(&count)
+	if err != nil {
+		return device, err
+	}
+
+	if count != 0 {
+		return device, errors.New("error: Device id already exists, choose another one")
+	}
+
 	deviceId := utils.GenerateUUID()
+	AddDeviceSQL := config.GetAddDeviceSQL()
+	fmt.Println(AddDeviceSQL, deviceId, ctx.Value("userEmail").(string), device.Name)
 
-	SQL := "insert into management.user_devices (uuid, name) values ($1, $2) RETURNING name, status, created_at"
-
-	fmt.Println(SQL, deviceId, device.Name)
-
-	err := tx.QueryRowContext(ctx, SQL, deviceId, device.Name).
+	err = tx.QueryRowContext(ctx, AddDeviceSQL, deviceId, ctx.Value("userEmail").(string), device.Name).
 		Scan(&device.Name, &device.Status, &device.CreatedAt)
+	if err != nil {
+		return device, err
+	}
 
-	helper.PanicIfError(err)
 	fmt.Println("Success insert device", device)
-
-	return device
+	return device, nil
 }
 
 func (repository *DeviceRepositoryImpl) DeleteDevice(ctx context.Context, tx *sql.Tx, device entity.Device) {

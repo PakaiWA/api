@@ -17,7 +17,7 @@ import (
 )
 
 type DeviceRepository interface {
-	AddDevice(ctx context.Context, tx *sql.Tx, device entity.Device) entity.Device
+	AddDevice(ctx context.Context, tx *sql.Tx, device entity.Device) (entity.Device, error)
 	DeleteDevice(ctx context.Context, tx *sql.Tx, device entity.Device)
 	FindDeviceById(ctx context.Context, tx *sql.Tx, deviceId string) (entity.Device, error)
 	GetAllDevices(ctx context.Context, tx *sql.Tx) []entity.Device

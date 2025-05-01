@@ -94,7 +94,10 @@ func (service *DeviceServiceImpl) AddDevice(ctx context.Context, req api.DeviceA
 		Name: req.DeviceId,
 	}
 
-	device = service.DeviceRepository.AddDevice(ctx, tx, device)
+	device, err = service.DeviceRepository.AddDevice(ctx, tx, device)
+	if err != nil {
+		panic(exception.NewBadRequestError(err.Error()))
+	}
 
 	return api.ToDeviceResponse(device)
 }
