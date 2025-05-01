@@ -19,4 +19,5 @@ import (
 type UserRepo interface {
 	CreateUser(ctx context.Context, tx *sql.Tx, user entity.User) entity.User
 	EmailExist(ctx context.Context, tx *sql.Tx, email string) (bool, error)
+	Login(ctx context.Context, tx *sql.Tx, email, pass string) (entity.User, error)
 }

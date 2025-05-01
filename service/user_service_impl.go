@@ -37,6 +37,24 @@ func NewUserService(repo repository.UserRepo, db *sql.DB, validate *validator.Va
 	}
 }
 
+func (service UserServiceImpl) Login(ctx context.Context, req api.UserRq) api.UserRs {
+	fmt.Println("Invoke Login Service")
+	err := service.Validate.Struct(req)
+	helper.PanicIfError(err)
+
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(tx)
+
+	user, err := service.Repo.Login(ctx, tx, req.Email, req.Password)
+	if err != nil {
+		fmt.Println("Error logging in:", err)
+		helper.PanicIfError(err)
+	}
+
+	return api.ToUserResponse(user)
+}
+
 func (service UserServiceImpl) CreateUser(ctx context.Context, req api.UserRq) api.UserRs {
 	fmt.Println("Invoke CreateUser Service")
 	err := service.Validate.Struct(req)

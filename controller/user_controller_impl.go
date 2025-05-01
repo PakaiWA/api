@@ -27,7 +27,25 @@ func NewUserController(userService service.UserService) UserController {
 }
 
 func (controller *UserControllerImpl) RegisterRoutes(router *httprouter.Router) {
+	router.POST("/login", controller.Login)
 	router.POST("/register", controller.CreateUser)
+}
+
+func (controller *UserControllerImpl) Login(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	fmt.Println("Invoke Login Controller")
+	req := api.UserRq{}
+	api.ReadFromRequestBody(request, &req)
+
+	res := controller.UserService.Login(request.Context(), req)
+
+	apiResponse := api.ResponseAPI{
+		Code:   http.StatusOK,
+		Status: "OK",
+		Data:   res,
+		Meta:   nil,
+	}
+
+	api.WriteToResponseBody(writer, apiResponse.Code, apiResponse)
 }
 
 func (controller *UserControllerImpl) CreateUser(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {

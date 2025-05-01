@@ -56,3 +56,25 @@ func (repo UserRepoImpl) EmailExist(ctx context.Context, tx *sql.Tx, email strin
 
 	return count != 0, nil
 }
+
+func (repo UserRepoImpl) Login(ctx context.Context, tx *sql.Tx, email, pass string) (entity.User, error) {
+	fmt.Println("Invoke Login Repository")
+	SQL := "SELECT uuid, email, password FROM management.users WHERE email = $1"
+
+	user := entity.User{}
+
+	err := tx.QueryRowContext(ctx, SQL, email).Scan(&user.Uuid, &user.Email, &user.Password)
+	if err != nil {
+		fmt.Println("Error executing query:", err)
+		return user, err
+	}
+
+	if !utils.CheckPasswordHash(pass, user.Password) {
+		fmt.Println("Invalid password")
+		return user, fmt.Errorf("invalid password")
+	}
+
+	user.Password = "" // Clear sensitive data
+	fmt.Printf("Success login user with UUID: %s and Email: %s\n", user.Uuid, user.Email)
+	return user, nil
+}
