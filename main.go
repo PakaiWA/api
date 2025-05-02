@@ -28,6 +28,7 @@ import (
 
 func init() {
 	scc2go.GetEnv(os.Getenv("SCC_URL"), os.Getenv("AUTH"))
+	app.NewRedisClient()
 }
 
 func main() {

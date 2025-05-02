@@ -47,3 +47,11 @@ func GetAddDeviceSQL() string {
 func GetCountDeviceSQL() string {
 	return viper.GetString("app.sql.countDeviceById")
 }
+
+func GetRedisHost() string {
+	return viper.GetString("redis.host")
+}
+
+func GetRedisPassword() string {
+	return viper.GetString("redis.password")
+}

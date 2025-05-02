@@ -12,11 +12,16 @@ package middleware
 
 import (
 	"context"
+	"errors"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/julienschmidt/httprouter"
+	"github.com/pakaiwa/api/app"
 	"github.com/pakaiwa/api/config"
 	"github.com/pakaiwa/api/model/api"
+	"github.com/redis/go-redis/v9"
+	"log"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -50,7 +55,24 @@ func AuthMiddleware(next httprouter.Handle) httprouter.Handle {
 			return
 		}
 
-		// TODO: check if claims is valid
+		exp, err := app.RedisClient.Get(context.Background(), claims.Email).Result()
+		if errors.Is(err, redis.Nil) {
+			log.Println("Token is valid")
+		} else if err != nil {
+			log.Printf("Error when retrive data from Redis: %v", err)
+			res.Code = http.StatusInternalServerError
+			res.Status = "INTERNAL_SERVER_ERROR"
+			api.WriteToResponseBody(w, res.Code, res)
+			return
+		} else {
+			if logoutOn, _ := strconv.Atoi(exp); logoutOn > claims.Iat {
+				log.Println("Token is invalid")
+				res.Code = http.StatusUnauthorized
+				res.Status = "UNAUTHORIZED"
+				api.WriteToResponseBody(w, res.Code, res)
+				return
+			}
+		}
 
 		// save claims to context
 		ctx := context.WithValue(r.Context(), "userEmail", claims.Email)
