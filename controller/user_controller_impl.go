@@ -28,8 +28,15 @@ func NewUserController(userService service.UserService) UserController {
 }
 
 func (controller *UserControllerImpl) RegisterRoutes(router *httprouter.Router) {
+	router.DELETE("/logout", middleware.AuthMiddleware(controller.Logout))
 	router.POST("/login", middleware.AdminMiddleware(controller.Login))
 	router.POST("/register", middleware.AdminMiddleware(controller.CreateUser))
+}
+
+func (controller *UserControllerImpl) Logout(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	fmt.Println("Invoke Logout Controller")
+	controller.UserService.Logout(request.Context())
+	writer.WriteHeader(http.StatusNoContent)
 }
 
 func (controller *UserControllerImpl) Login(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {

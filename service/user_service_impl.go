@@ -15,12 +15,14 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/go-playground/validator/v10"
+	"github.com/pakaiwa/api/app"
 	"github.com/pakaiwa/api/exception"
 	"github.com/pakaiwa/api/helper"
 	"github.com/pakaiwa/api/model/api"
 	"github.com/pakaiwa/api/model/entity"
 	"github.com/pakaiwa/api/repository"
 	"github.com/pakaiwa/api/utils"
+	"time"
 )
 
 type UserServiceImpl struct {
@@ -35,6 +37,25 @@ func NewUserService(repo repository.UserRepo, db *sql.DB, validate *validator.Va
 		DB:       db,
 		Validate: validate,
 	}
+}
+
+func (service UserServiceImpl) Logout(ctx context.Context) {
+	fmt.Println("Invoke Logout Service")
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(tx)
+
+	exist, err := service.Repo.EmailExist(ctx, tx, ctx.Value("userEmail").(string))
+	if err != nil {
+		fmt.Println("Error checking email existence:", err)
+		helper.PanicIfError(err)
+	}
+
+	if !exist {
+		panic(exception.NewBadRequestError("invalid token: email not registered"))
+	}
+
+	app.RedisClient.Set(ctx, ctx.Value("userEmail").(string), time.Now().Unix(), 0)
 }
 
 func (service UserServiceImpl) Login(ctx context.Context, req api.UserRq) api.UserRs {

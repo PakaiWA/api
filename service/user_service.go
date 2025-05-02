@@ -16,6 +16,7 @@ import (
 )
 
 type UserService interface {
+	Logout(ctx context.Context)
 	Login(ctx context.Context, user api.UserRq) api.UserRs
 	CreateUser(ctx context.Context, user api.UserRq) api.UserRs
 }
