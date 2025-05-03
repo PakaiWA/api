@@ -19,6 +19,7 @@ import (
 	"github.com/pakaiwa/api/helper"
 	"github.com/pakaiwa/api/model/entity"
 	"github.com/pakaiwa/api/utils"
+	"strings"
 )
 
 type DeviceRepositoryImpl struct{}
@@ -32,7 +33,7 @@ func (repository *DeviceRepositoryImpl) AddDevice(ctx context.Context, tx *sql.T
 
 	var count int
 	CountDeviceSQL := config.GetCountDeviceSQL()
-	err := tx.QueryRowContext(ctx, CountDeviceSQL, device.Name, ctx.Value("userEmail").(string)).Scan(&count)
+	err := tx.QueryRowContext(ctx, CountDeviceSQL, strings.ToLower(device.Name), ctx.Value("userEmail").(string)).Scan(&count)
 	if err != nil {
 		return device, err
 	}
@@ -43,9 +44,9 @@ func (repository *DeviceRepositoryImpl) AddDevice(ctx context.Context, tx *sql.T
 
 	deviceId := utils.GenerateUUID()
 	AddDeviceSQL := config.GetAddDeviceSQL()
-	fmt.Println(AddDeviceSQL, deviceId, ctx.Value("userEmail").(string), device.Name)
+	fmt.Println(AddDeviceSQL, deviceId, ctx.Value("userEmail").(string), strings.ToLower(device.Name))
 
-	err = tx.QueryRowContext(ctx, AddDeviceSQL, deviceId, ctx.Value("userEmail").(string), device.Name).
+	err = tx.QueryRowContext(ctx, AddDeviceSQL, deviceId, ctx.Value("userEmail").(string), strings.ToLower(device.Name)).
 		Scan(&device.Name, &device.Status, &device.CreatedAt)
 	if err != nil {
 		return device, err
@@ -59,7 +60,7 @@ func (repository *DeviceRepositoryImpl) DeleteDevice(ctx context.Context, tx *sq
 	fmt.Println("Invoke DeleteDevice Repository")
 
 	SQL := config.GetDeleteDeviceSQL()
-	_, err := tx.ExecContext(ctx, SQL, device.Name, ctx.Value("userEmail").(string))
+	_, err := tx.ExecContext(ctx, SQL, strings.ToLower(device.Name), ctx.Value("userEmail").(string))
 	helper.PanicIfError(err)
 }
 
@@ -67,7 +68,7 @@ func (repository *DeviceRepositoryImpl) FindDeviceById(ctx context.Context, tx *
 	fmt.Println("Invoke FindDeviceById Repository")
 
 	SQL := config.GetDeviceByIdSQL()
-	rows, err := tx.QueryContext(ctx, SQL, deviceId, ctx.Value("userEmail").(string))
+	rows, err := tx.QueryContext(ctx, SQL, strings.ToLower(deviceId), ctx.Value("userEmail").(string))
 	helper.PanicIfError(err)
 	defer func(rows *sql.Rows) {
 		err := rows.Close()
