@@ -28,8 +28,8 @@ func NewUserController(userService service.UserService) UserController {
 }
 
 func (controller *UserControllerImpl) RegisterRoutes(router *httprouter.Router) {
+	router.POST("/login", controller.Login)
 	router.DELETE("/logout", middleware.AuthMiddleware(controller.Logout))
-	router.POST("/login", middleware.AdminMiddleware(controller.Login))
 	router.POST("/register", middleware.AdminMiddleware(controller.CreateUser))
 }
 
