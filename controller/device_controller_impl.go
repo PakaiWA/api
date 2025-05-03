@@ -55,17 +55,13 @@ func (controller *DeviceControllerImpl) AddDevice(writer http.ResponseWriter, re
 
 func (controller *DeviceControllerImpl) DeleteDevice(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 	fmt.Println("Invoke DeleteDevice Controller")
-
-	deviceId := params.ByName("deviceId")
-	controller.DeviceService.DeleteDevice(request.Context(), deviceId)
-
+	controller.DeviceService.DeleteDevice(request.Context(), params.ByName("deviceId"))
 	writer.WriteHeader(http.StatusNoContent)
 }
 
 func (controller *DeviceControllerImpl) GetDeviceById(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 	fmt.Println("Invoke GetDeviceById Controller")
-	deviceId := params.ByName("deviceId")
-	res := controller.DeviceService.GetDevice(request.Context(), deviceId)
+	res := controller.DeviceService.GetDevice(request.Context(), params.ByName("deviceId"))
 
 	webResponse := api.ResponseAPI{
 		Code:   200,
@@ -75,7 +71,6 @@ func (controller *DeviceControllerImpl) GetDeviceById(writer http.ResponseWriter
 	}
 
 	api.WriteToResponseBody(writer, webResponse.Code, webResponse)
-
 }
 
 func (controller *DeviceControllerImpl) GetAllDevices(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
@@ -91,5 +86,4 @@ func (controller *DeviceControllerImpl) GetAllDevices(writer http.ResponseWriter
 	}
 
 	api.WriteToResponseBody(writer, webResponse.Code, webResponse)
-
 }
