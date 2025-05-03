@@ -42,6 +42,9 @@ func main() {
 	userController := controller.NewUserController(service.NewUserService(repository.NewUserRepo(), db, validate))
 	userController.RegisterRoutes(router)
 
+	qrController := controller.NewQRController(service.NewQRService(repository.NewDeviceRepository(), db))
+	qrController.RegisterRoutes(router)
+
 	server := http.Server{
 		Addr:    "localhost:3000",
 		Handler: router,
