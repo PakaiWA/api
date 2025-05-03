@@ -85,6 +85,7 @@ func (repository *DeviceRepositoryImpl) FindDeviceById(ctx context.Context, tx *
 
 	if rows.Next() {
 		err := rows.Scan(
+			&device.Id,
 			&device.Name,
 			&device.Status,
 			&device.PhoneNumber,
