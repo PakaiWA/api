@@ -18,4 +18,5 @@ import (
 type QRController interface {
 	RegisterRoutes(router *httprouter.Router)
 	getQRCode(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
+	showQR(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
 }

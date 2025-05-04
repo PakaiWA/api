@@ -13,10 +13,15 @@ package controller
 import (
 	"fmt"
 	"github.com/julienschmidt/httprouter"
+	"github.com/pakaiwa/api/exception"
+	"github.com/pakaiwa/api/helper"
 	"github.com/pakaiwa/api/middleware"
 	"github.com/pakaiwa/api/model/api"
 	"github.com/pakaiwa/api/service"
+	"github.com/pakaiwa/api/utils"
+	"github.com/skip2/go-qrcode"
 	"net/http"
+	"net/url"
 )
 
 type QRControllerImpl struct {
@@ -31,6 +36,7 @@ func NewQRController(QRService service.QRService) QRController {
 
 func (controller *QRControllerImpl) RegisterRoutes(router *httprouter.Router) {
 	router.GET("/qr/:deviceId", middleware.AuthMiddleware(controller.getQRCode))
+	router.GET("/qr/show", controller.showQR)
 }
 
 func (controller *QRControllerImpl) getQRCode(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
@@ -46,4 +52,26 @@ func (controller *QRControllerImpl) getQRCode(writer http.ResponseWriter, reques
 	}
 
 	api.WriteToResponseBody(writer, apiResponse.Code, apiResponse)
+}
+
+func (controller *QRControllerImpl) showQR(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	fmt.Println("Invoke showQR Controller")
+
+	qrCode := request.URL.Query().Get("qrCode")
+	if qrCode == "" {
+		panic(exception.NewBadRequestError("qrCode query param is required"))
+		return
+	}
+
+	png, err := qrcode.Encode(qrCode, qrcode.Medium, 256)
+	if err != nil {
+		helper.PanicIfError(err)
+	}
+
+	writer.Header().Set("Content-Type", "image/png")
+	writer.WriteHeader(http.StatusOK)
+	_, err = writer.Write(png)
+	if err != nil {
+		helper.PanicIfError(err)
+	}
 }

@@ -16,9 +16,14 @@ import (
 )
 
 func GetMetaLocation(r *http.Request) string {
+	return fmt.Sprintf("%s/%s", GetHost(r), r.RequestURI)
+}
+
+func GetHost(r *http.Request) string {
 	scheme := "http"
 	if r.TLS != nil {
 		scheme = "https"
 	}
-	return fmt.Sprintf("%s://%s%s/", scheme, r.Host, r.RequestURI)
+	return fmt.Sprintf("%s://%s", scheme, r.Host)
+
 }
