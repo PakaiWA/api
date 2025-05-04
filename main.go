@@ -11,6 +11,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"github.com/KAnggara75/scc2go"
 	"github.com/go-playground/validator/v10"
@@ -26,13 +27,15 @@ import (
 	"os"
 )
 
+var ctx = context.Background()
+
 func init() {
 	scc2go.GetEnv(os.Getenv("SCC_URL"), os.Getenv("AUTH"))
 	app.NewRedisClient()
 }
 
 func main() {
-	db := app.NewDBConn()
+	db := app.NewDBConn(ctx)
 	router := httprouter.New()
 	validate := validator.New()
 
