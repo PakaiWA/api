@@ -14,7 +14,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-playground/validator/v10"
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pakaiwa/api/exception"
 	"github.com/pakaiwa/api/helper"
@@ -40,12 +39,9 @@ func NewDeviceService(deviceRepository repository.DeviceRepository, DB *pgxpool.
 func (service *DeviceServiceImpl) DeleteDevice(ctx context.Context, id string) {
 	fmt.Println("Invoke DeleteDevice Service")
 
-	conn, err := service.DB.Acquire(ctx)
+	tx, conn, err := helper.DBTransaction(ctx, service.DB)
 	helper.PanicIfError(err)
 	defer conn.Release()
-
-	tx, err := conn.BeginTx(ctx, pgx.TxOptions{})
-	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(ctx, tx)
 
 	device, err := service.DeviceRepository.FindDeviceById(ctx, tx, id)
@@ -59,18 +55,12 @@ func (service *DeviceServiceImpl) DeleteDevice(ctx context.Context, id string) {
 func (service *DeviceServiceImpl) GetAllDevices(ctx context.Context) []api.DeviceRs {
 	fmt.Println("Invoke GetAllDevices Service")
 
-	conn, err := service.DB.Acquire(ctx)
+	tx, conn, err := helper.DBTransaction(ctx, service.DB)
 	helper.PanicIfError(err)
 	defer conn.Release()
-
-	tx, err := conn.BeginTx(ctx, pgx.TxOptions{})
-	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(ctx, tx)
 
 	devices := service.DeviceRepository.GetAllDevices(ctx, tx)
-	if err != nil {
-		panic(exception.NewNotFoundError(err.Error()))
-	}
 
 	return api.ToDeviceResponses(devices)
 }
@@ -78,12 +68,9 @@ func (service *DeviceServiceImpl) GetAllDevices(ctx context.Context) []api.Devic
 func (service *DeviceServiceImpl) GetDevice(ctx context.Context, id string) api.DeviceRs {
 	fmt.Println("Invoke GetDevice Service")
 
-	conn, err := service.DB.Acquire(ctx)
+	tx, conn, err := helper.DBTransaction(ctx, service.DB)
 	helper.PanicIfError(err)
 	defer conn.Release()
-
-	tx, err := conn.BeginTx(ctx, pgx.TxOptions{})
-	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(ctx, tx)
 
 	device, err := service.DeviceRepository.FindDeviceById(ctx, tx, id)
@@ -99,12 +86,9 @@ func (service *DeviceServiceImpl) AddDevice(ctx context.Context, req api.DeviceA
 	err := service.Validate.Struct(req)
 	helper.PanicIfError(err)
 
-	conn, err := service.DB.Acquire(ctx)
+	tx, conn, err := helper.DBTransaction(ctx, service.DB)
 	helper.PanicIfError(err)
 	defer conn.Release()
-
-	tx, err := conn.BeginTx(ctx, pgx.TxOptions{})
-	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(ctx, tx)
 
 	device := entity.Device{

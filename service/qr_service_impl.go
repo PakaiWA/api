@@ -13,7 +13,6 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pakaiwa/api/config"
 	"github.com/pakaiwa/api/exception"
@@ -46,12 +45,9 @@ var (
 
 func (service QRServiceImpl) GetQRCode(ctx context.Context, deviceId string) api.QRCodeRs {
 	fmt.Println("Invoke GetQRCode Service")
-	conn, err := service.DB.Acquire(ctx)
+	tx, conn, err := helper.DBTransaction(ctx, service.DB)
 	helper.PanicIfError(err)
 	defer conn.Release()
-
-	tx, err := conn.BeginTx(ctx, pgx.TxOptions{})
-	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(ctx, tx)
 
 	device, err := service.DeviceRepository.FindDeviceById(ctx, tx, deviceId)

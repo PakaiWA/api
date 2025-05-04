@@ -12,8 +12,26 @@ package helper
 
 import (
 	"context"
+	"fmt"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
+
+func DBTransaction(ctx context.Context, DB *pgxpool.Pool) (pgx.Tx, *pgxpool.Conn, error) {
+	fmt.Println("Invoke DBTransaction")
+	conn, err := DB.Acquire(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	tx, err := conn.BeginTx(ctx, pgx.TxOptions{})
+	if err != nil {
+		conn.Release()
+		return nil, nil, err
+	}
+
+	return tx, conn, nil
+}
 
 func CommitOrRollback(ctx context.Context, tx pgx.Tx) {
 	err := recover()

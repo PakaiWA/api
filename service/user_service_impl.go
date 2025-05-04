@@ -14,7 +14,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-playground/validator/v10"
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pakaiwa/api/app"
 	"github.com/pakaiwa/api/exception"
@@ -42,12 +41,9 @@ func NewUserService(repo repository.UserRepo, db *pgxpool.Pool, validate *valida
 
 func (service UserServiceImpl) Logout(ctx context.Context) {
 	fmt.Println("Invoke Logout Service")
-	conn, err := service.DB.Acquire(ctx)
+	tx, conn, err := helper.DBTransaction(ctx, service.DB)
 	helper.PanicIfError(err)
 	defer conn.Release()
-
-	tx, err := conn.BeginTx(ctx, pgx.TxOptions{})
-	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(ctx, tx)
 
 	exist, err := service.Repo.EmailExist(ctx, tx, ctx.Value("userEmail").(string))
@@ -68,12 +64,9 @@ func (service UserServiceImpl) Login(ctx context.Context, req api.UserRq) api.Us
 	err := service.Validate.Struct(req)
 	helper.PanicIfError(err)
 
-	conn, err := service.DB.Acquire(ctx)
+	tx, conn, err := helper.DBTransaction(ctx, service.DB)
 	helper.PanicIfError(err)
 	defer conn.Release()
-
-	tx, err := conn.BeginTx(ctx, pgx.TxOptions{})
-	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(ctx, tx)
 
 	user, err := service.Repo.Login(ctx, tx, req.Email, req.Password)
@@ -90,12 +83,9 @@ func (service UserServiceImpl) CreateUser(ctx context.Context, req api.UserRq) a
 	err := service.Validate.Struct(req)
 	helper.PanicIfError(err)
 
-	conn, err := service.DB.Acquire(ctx)
+	tx, conn, err := helper.DBTransaction(ctx, service.DB)
 	helper.PanicIfError(err)
 	defer conn.Release()
-
-	tx, err := conn.BeginTx(ctx, pgx.TxOptions{})
-	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(ctx, tx)
 
 	exist, err := service.Repo.EmailExist(ctx, tx, req.Email)
