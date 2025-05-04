@@ -16,7 +16,7 @@ import (
 )
 
 func GetMetaLocation(r *http.Request) string {
-	return fmt.Sprintf("%s/%s", GetHost(r), r.RequestURI)
+	return fmt.Sprintf("%s%s/", GetHost(r), r.RequestURI)
 }
 
 func GetHost(r *http.Request) string {

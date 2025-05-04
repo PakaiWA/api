@@ -47,7 +47,9 @@ func (service UserServiceImpl) Logout(ctx context.Context) {
 	defer conn.Release()
 	defer helper.CommitOrRollback(ctx, tx)
 
-	exist, err := service.Repo.EmailExist(ctx, tx, ctx.Value("userEmail").(string))
+	email := ctx.Value("userEmail").(string)
+
+	exist, err := service.Repo.EmailExist(ctx, tx, email)
 	if err != nil {
 		fmt.Println("Error checking email existence:", err)
 		helper.PanicIfError(err)
@@ -57,7 +59,7 @@ func (service UserServiceImpl) Logout(ctx context.Context) {
 		panic(exception.NewHTTPError(http.StatusBadRequest, "invalid token: email not registered"))
 	}
 
-	app.RedisClient.Set(ctx, ctx.Value("userEmail").(string), time.Now().Unix(), 0)
+	app.RedisClient.Set(ctx, email, time.Now().Unix(), 0)
 }
 
 func (service UserServiceImpl) Login(ctx context.Context, req api.UserRq) api.UserRs {
@@ -73,7 +75,7 @@ func (service UserServiceImpl) Login(ctx context.Context, req api.UserRq) api.Us
 	user, err := service.Repo.Login(ctx, tx, req.Email, req.Password)
 	if err != nil {
 		fmt.Println("Error logging in:", err)
-		helper.PanicIfError(err)
+		panic(exception.NewHTTPError(http.StatusUnauthorized, "Wrong email or password"))
 	}
 
 	return api.ToUserResponse(user)

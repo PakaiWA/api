@@ -17,6 +17,10 @@ require (
 	golang.org/x/crypto v0.37.0
 )
 
+replace (
+	github.com/pakaiwa/pakaiwa => ../pakaiwa
+)
+
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect

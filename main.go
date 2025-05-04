@@ -27,6 +27,7 @@ import (
 	"github.com/pakaiwa/api/usecase"
 	"net/http"
 	"os"
+	"time"
 )
 
 var ctx = context.Background()
@@ -44,9 +45,11 @@ func main() {
 	registerControllers(router, db, validate)
 	router.PanicHandler = exception.ErrorHandler
 
-	server := http.Server{
-		Addr:    "localhost:3000",
-		Handler: router,
+	server := &http.Server{
+		Addr:         "localhost:3000",
+		Handler:      router,
+		ReadTimeout:  15 * time.Second,
+		WriteTimeout: 15 * time.Second,
 	}
 
 	fmt.Printf("Listening on => https://%s", server.Addr)
