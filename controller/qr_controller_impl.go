@@ -17,32 +17,30 @@ import (
 	"github.com/pakaiwa/api/helper"
 	"github.com/pakaiwa/api/middleware"
 	"github.com/pakaiwa/api/model/api"
-	"github.com/pakaiwa/api/service"
-	"github.com/pakaiwa/api/utils"
+	"github.com/pakaiwa/api/usecase"
 	"github.com/skip2/go-qrcode"
 	"net/http"
-	"net/url"
 )
 
 type QRControllerImpl struct {
-	QRService service.QRService
+	QRUsecase usecase.QRUsecase
 }
 
-func NewQRController(QRService service.QRService) QRController {
+func NewQRController(QRUsecase usecase.QRUsecase) QRController {
 	return &QRControllerImpl{
-		QRService: QRService,
+		QRUsecase: QRUsecase,
 	}
 }
 
 func (controller *QRControllerImpl) RegisterRoutes(router *httprouter.Router) {
-	router.GET("/qr/:deviceId", middleware.AuthMiddleware(controller.getQRCode))
 	router.GET("/qr/show", controller.showQR)
+	router.GET("/qr", middleware.AuthMiddleware(controller.getQRCode))
 }
 
 func (controller *QRControllerImpl) getQRCode(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 	fmt.Println("Invoke getQRCode Controller")
 
-	qrRs := controller.QRService.GetQRCode(request.Context(), params.ByName("deviceId"))
+	qrRs := controller.QRUsecase.GetQRCode(request.Context(), request)
 
 	apiResponse := api.ResponseAPI{
 		Code:   http.StatusOK,

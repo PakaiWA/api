@@ -14,19 +14,12 @@ import (
 	"context"
 	"fmt"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/pakaiwa/api/config"
 	"github.com/pakaiwa/api/exception"
 	"github.com/pakaiwa/api/helper"
 	"github.com/pakaiwa/api/model/api"
 	"github.com/pakaiwa/api/repository"
-	"github.com/pakaiwa/pakaiwa"
-	"github.com/pakaiwa/pakaiwa/store/sqlstore"
-	waLog "github.com/pakaiwa/pakaiwa/util/log"
-	"log"
+	"github.com/pakaiwa/api/session"
 	"net/http"
-	"os"
-	"sync"
-	"time"
 )
 
 type QRServiceImpl struct {
@@ -41,11 +34,6 @@ func NewQRService(deviceRepository repository.DeviceRepository, DB *pgxpool.Pool
 	}
 }
 
-var (
-	clientMap  = make(map[string]*pakaiwa.Client)
-	clientLock = sync.Mutex{}
-)
-
 func (service QRServiceImpl) GetQRCode(ctx context.Context, deviceId string) api.QRCodeRs {
 	fmt.Println("Invoke GetQRCode Service")
 	tx, conn, err := helper.DBTransaction(ctx, service.DB)
@@ -57,32 +45,13 @@ func (service QRServiceImpl) GetQRCode(ctx context.Context, deviceId string) api
 	if err != nil {
 		panic(exception.NewHTTPError(http.StatusNotFound, err.Error()))
 	}
-	fmt.Println("Get QR Code Success", device)
 
-	clientLock.Lock()
-	defer clientLock.Unlock()
+	pakaiwaClient := session.NewDevicePakaiWA(device.Id)
 
-	if existingClient, ok := clientMap[device.Id]; ok {
-		if existingClient.IsConnected() {
-			log.Println("Client already connected for device:", device.Id)
-		}
+	qrCode := session.QRHandler(pakaiwaClient)
+
+	QRResponse := api.QRCodeRs{
+		QRCode: qrCode,
 	}
-
-	// Load device and store
-	dbLog := waLog.Stdout("Database", "DEBUG", true)
-	container, err := sqlstore.New(config.GetDBCon(), dbLog)
-	if err != nil {
-		panic(err)
-	}
-	store := container.NewDevice()
-	client := pakaiwa.NewClient(store, nil)
-
-	clientMap[device.Id] = client
-
-	go client.Connect() // non-blocking connect
-
-	qrCode := api.QRCodeRs{}
-	qrCode.QRCode = "https://api.pakaiwa.com/qr/" + device.Id
-	qrCode.ImageUrl = "https://api.pakaiwa.com/qr/" + device.Name
-	return qrCode
+	return QRResponse
 }

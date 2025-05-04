@@ -20,4 +20,5 @@ type DeviceService interface {
 	GetAllDevices(ctx context.Context) []api.DeviceRs
 	GetDevice(ctx context.Context, id string) api.DeviceRs
 	AddDevice(ctx context.Context, req api.DeviceAddRq) api.DeviceRs
+	GetDeviceById(ctx context.Context, id string) (api.DeviceRs, error)
 }

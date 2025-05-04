@@ -16,6 +16,7 @@ import (
 	"github.com/KAnggara75/scc2go"
 	"github.com/go-playground/validator/v10"
 	_ "github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/julienschmidt/httprouter"
 	"github.com/pakaiwa/api/app"
 	"github.com/pakaiwa/api/controller"
@@ -23,6 +24,7 @@ import (
 	"github.com/pakaiwa/api/helper"
 	"github.com/pakaiwa/api/repository"
 	"github.com/pakaiwa/api/service"
+	"github.com/pakaiwa/api/usecase"
 	"net/http"
 	"os"
 )
@@ -39,22 +41,35 @@ func main() {
 	router := httprouter.New()
 	validate := validator.New()
 
-	deviceController := controller.NewDeviceController(service.NewDeviceService(repository.NewDeviceRepository(), db, validate))
-	deviceController.RegisterRoutes(router)
-
-	userController := controller.NewUserController(service.NewUserService(repository.NewUserRepo(), db, validate))
-	userController.RegisterRoutes(router)
-
-	qrController := controller.NewQRController(service.NewQRService(repository.NewDeviceRepository(), db))
-	qrController.RegisterRoutes(router)
+	registerControllers(router, db, validate)
+	router.PanicHandler = exception.ErrorHandler
 
 	server := http.Server{
 		Addr:    "localhost:3000",
 		Handler: router,
 	}
 
-	router.PanicHandler = exception.ErrorHandler
-	fmt.Println("Listening on port 3000")
-	err := server.ListenAndServe()
-	helper.PanicIfError(err)
+	fmt.Printf("Listening on => https://%s", server.Addr)
+	helper.PanicIfError(server.ListenAndServe())
+}
+
+func registerControllers(router *httprouter.Router, db *pgxpool.Pool, validate *validator.Validate) {
+	// Device
+	deviceRepo := repository.NewDeviceRepository()
+	deviceService := service.NewDeviceService(deviceRepo, db, validate)
+	deviceController := controller.NewDeviceController(deviceService)
+	deviceController.RegisterRoutes(router)
+
+	// User
+	userRepo := repository.NewUserRepo()
+	userService := service.NewUserService(userRepo, db, validate)
+	userController := controller.NewUserController(userService)
+	userController.RegisterRoutes(router)
+
+	// QR
+	qrDeviceRepo := repository.NewDeviceRepository() // kalau bisa reuse deviceRepo
+	qrService := service.NewQRService(qrDeviceRepo, db)
+	qrUsecase := usecase.NewQRUsecase(qrService, deviceService)
+	qrController := controller.NewQRController(qrUsecase)
+	qrController.RegisterRoutes(router)
 }

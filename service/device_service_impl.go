@@ -37,6 +37,22 @@ func NewDeviceService(deviceRepository repository.DeviceRepository, DB *pgxpool.
 	}
 }
 
+func (service *DeviceServiceImpl) GetDeviceById(ctx context.Context, id string) (api.DeviceRs, error) {
+	fmt.Println("Invoke GetDeviceById Service")
+
+	tx, conn, err := helper.DBTransaction(ctx, service.DB)
+	helper.PanicIfError(err)
+	defer conn.Release()
+	defer helper.CommitOrRollback(ctx, tx)
+
+	device, err := service.DeviceRepository.FindDeviceById(ctx, tx, id)
+	if err != nil {
+		return api.DeviceRs{}, err
+	}
+
+	return api.ToDeviceResponse(device), nil
+}
+
 func (service *DeviceServiceImpl) DeleteDevice(ctx context.Context, id string) {
 	fmt.Println("Invoke DeleteDevice Service")
 

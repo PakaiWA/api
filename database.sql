@@ -14,13 +14,15 @@ create table if not exists pakaiwa.management.user_devices
     uuid                varchar(100) primary key,
     user_uuid           varchar(100) not null,
     name                varchar(100) not null,
-    status              varchar(20) default 'disconnected',
-    phone_number        varchar(20) default '',
-    created_at          timestamp   default LOCALTIMESTAMP,
+    status              varchar(20)  default 'disconnected',
+    phone_number        varchar(20)  default '',
+    jid                 varchar(100) default null,
+    created_at          timestamp    default LOCALTIMESTAMP,
     connected_at        timestamp,
     disconnected_at     timestamp,
     disconnected_reason varchar(100),
-    foreign key (user_uuid) references pakaiwa.management.users (uuid) on delete cascade
+    FOREIGN KEY (user_uuid) REFERENCES pakaiwa.management.users (uuid) ON DELETE CASCADE,
+    FOREIGN KEY (jid) REFERENCES pakaiwa.pakaiwa.device (jid) ON DELETE CASCADE
 );
 CREATE INDEX IF NOT EXISTS user_devices_user_idx on pakaiwa.management.user_devices (user_uuid);
 CREATE UNIQUE INDEX IF NOT EXISTS user_device_unique_name_per_user ON pakaiwa.management.user_devices (user_uuid, name);
