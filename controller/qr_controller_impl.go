@@ -35,9 +35,8 @@ func (controller *QRControllerImpl) RegisterRoutes(router *httprouter.Router) {
 
 func (controller *QRControllerImpl) getQRCode(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 	fmt.Println("Invoke getQRCode Controller")
-	deviceId := params.ByName("deviceId")
 
-	qrRs := controller.QRService.GetQRCode(request.Context(), deviceId)
+	qrRs := controller.QRService.GetQRCode(request.Context(), params.ByName("deviceId"))
 
 	apiResponse := api.ResponseAPI{
 		Code:   http.StatusOK,

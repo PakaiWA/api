@@ -10,13 +10,15 @@
 
 package entity
 
+import "time"
+
 type Device struct {
 	Id                 string
 	Name               string
 	Status             string
 	PhoneNumber        string
-	CreatedAt          string
-	ConnectedAt        string
-	DisconnectedAt     string
-	DisconnectedReason string
+	CreatedAt          time.Time
+	ConnectedAt        *time.Time
+	DisconnectedAt     *time.Time
+	DisconnectedReason *string
 }

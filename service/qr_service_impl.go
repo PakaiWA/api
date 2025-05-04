@@ -12,37 +12,75 @@ package service
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/pakaiwa/api/config"
 	"github.com/pakaiwa/api/exception"
 	"github.com/pakaiwa/api/helper"
 	"github.com/pakaiwa/api/model/api"
 	"github.com/pakaiwa/api/repository"
+	"github.com/pakaiwa/pakaiwa"
+	"github.com/pakaiwa/pakaiwa/store/sqlstore"
+	waLog "github.com/pakaiwa/pakaiwa/util/log"
+	"log"
+	"sync"
 )
 
 type QRServiceImpl struct {
 	DeviceRepository repository.DeviceRepository
-	DB               *sql.DB
+	DB               *pgxpool.Pool
 }
 
-func NewQRService(deviceRepository repository.DeviceRepository, DB *sql.DB) *QRServiceImpl {
+func NewQRService(deviceRepository repository.DeviceRepository, DB *pgxpool.Pool) *QRServiceImpl {
 	return &QRServiceImpl{
 		DeviceRepository: deviceRepository,
 		DB:               DB,
 	}
 }
 
+var (
+	clientMap  = make(map[string]*pakaiwa.Client)
+	clientLock = sync.Mutex{}
+)
+
 func (service QRServiceImpl) GetQRCode(ctx context.Context, deviceId string) api.QRCodeRs {
 	fmt.Println("Invoke GetQRCode Service")
-	tx, err := service.DB.Begin()
+	conn, err := service.DB.Acquire(ctx)
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx)
+	defer conn.Release()
+
+	tx, err := conn.BeginTx(ctx, pgx.TxOptions{})
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(ctx, tx)
 
 	device, err := service.DeviceRepository.FindDeviceById(ctx, tx, deviceId)
 	if err != nil {
 		panic(exception.NewNotFoundError(err.Error()))
 	}
 	fmt.Println("Get QR Code Success", device)
+
+	clientLock.Lock()
+	defer clientLock.Unlock()
+
+	if existingClient, ok := clientMap[device.Id]; ok {
+		if existingClient.IsConnected() {
+			log.Println("Client already connected for device:", device.Id)
+		}
+	}
+
+	// Load device and store
+	dbLog := waLog.Stdout("Database", "DEBUG", true)
+	container, err := sqlstore.New(config.GetDBCon(), dbLog)
+	if err != nil {
+		panic(err)
+	}
+	store := container.NewDevice()
+	client := pakaiwa.NewClient(store, nil)
+
+	clientMap[device.Id] = client
+
+	go client.Connect() // non-blocking connect
 
 	qrCode := api.QRCodeRs{}
 	qrCode.QRCode = "https://api.pakaiwa.com/qr/" + device.Id

@@ -13,16 +13,17 @@ package api
 import (
 	"fmt"
 	"github.com/pakaiwa/api/model/entity"
+	"time"
 )
 
 type DeviceRs struct {
-	Id                 string `json:"id"`
-	Status             string `json:"status"`
-	PhoneNumber        string `json:"phone_number,omitempty"`
-	CreatedAt          string `json:"created_at"`
-	ConnectedAt        string `json:"connected_at,omitempty"`
-	DisconnectedAt     string `json:"disconnected_at,omitempty"`
-	DisconnectedReason string `json:"disconnected_reason,omitempty"`
+	Id                 string     `json:"id"`
+	Status             string     `json:"status"`
+	PhoneNumber        string     `json:"phone_number,omitempty"`
+	CreatedAt          time.Time  `json:"created_at"`
+	ConnectedAt        *time.Time `json:"connected_at,omitempty"`
+	DisconnectedAt     *time.Time `json:"disconnected_at,omitempty"`
+	DisconnectedReason *string    `json:"disconnected_reason,omitempty"`
 }
 
 func ToDeviceResponse(device entity.Device) DeviceRs {

@@ -11,21 +11,30 @@
 package app
 
 import (
-	"database/sql"
+	"context"
+	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/pakaiwa/api/config"
 	"github.com/pakaiwa/api/helper"
-	"time"
+	"sync"
 )
 
-func NewDBConn() *sql.DB {
-	db, err := sql.Open("pgx", config.GetDBCon())
-	helper.PanicIfError(err)
+var (
+	pool *pgxpool.Pool
+	once sync.Once
+)
 
-	db.SetMaxIdleConns(5)
-	db.SetMaxOpenConns(20)
-	db.SetConnMaxLifetime(60 * time.Minute)
-	db.SetConnMaxIdleTime(10 * time.Minute)
+func NewDBConn(ctx context.Context) *pgxpool.Pool {
+	once.Do(func() {
+		var err error
+		pool, err = pgxpool.New(ctx, config.GetDBCon())
+		helper.PanicIfError(err)
+	})
 
-	return db
+	// Verify the connection
+	if err := pool.Ping(ctx); err != nil {
+		helper.PanicIfError(err)
+	}
+
+	return pool
 }

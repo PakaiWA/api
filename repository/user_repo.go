@@ -12,12 +12,12 @@ package repository
 
 import (
 	"context"
-	"database/sql"
+	"github.com/jackc/pgx/v5"
 	"github.com/pakaiwa/api/model/entity"
 )
 
 type UserRepo interface {
-	CreateUser(ctx context.Context, tx *sql.Tx, user entity.User) entity.User
-	EmailExist(ctx context.Context, tx *sql.Tx, email string) (bool, error)
-	Login(ctx context.Context, tx *sql.Tx, email, pass string) (entity.User, error)
+	CreateUser(ctx context.Context, tx pgx.Tx, user entity.User) entity.User
+	EmailExist(ctx context.Context, tx pgx.Tx, email string) (bool, error)
+	Login(ctx context.Context, tx pgx.Tx, email, pass string) (entity.User, error)
 }

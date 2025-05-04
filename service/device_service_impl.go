@@ -12,9 +12,10 @@ package service
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"github.com/go-playground/validator/v10"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pakaiwa/api/exception"
 	"github.com/pakaiwa/api/helper"
 	"github.com/pakaiwa/api/model/api"
@@ -24,11 +25,11 @@ import (
 
 type DeviceServiceImpl struct {
 	DeviceRepository repository.DeviceRepository
-	DB               *sql.DB
+	DB               *pgxpool.Pool
 	Validate         *validator.Validate
 }
 
-func NewDeviceService(deviceRepository repository.DeviceRepository, DB *sql.DB, validate *validator.Validate) DeviceService {
+func NewDeviceService(deviceRepository repository.DeviceRepository, DB *pgxpool.Pool, validate *validator.Validate) DeviceService {
 	return &DeviceServiceImpl{
 		DeviceRepository: deviceRepository,
 		DB:               DB,
@@ -39,9 +40,13 @@ func NewDeviceService(deviceRepository repository.DeviceRepository, DB *sql.DB, 
 func (service *DeviceServiceImpl) DeleteDevice(ctx context.Context, id string) {
 	fmt.Println("Invoke DeleteDevice Service")
 
-	tx, err := service.DB.Begin()
+	conn, err := service.DB.Acquire(ctx)
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx)
+	defer conn.Release()
+
+	tx, err := conn.BeginTx(ctx, pgx.TxOptions{})
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(ctx, tx)
 
 	device, err := service.DeviceRepository.FindDeviceById(ctx, tx, id)
 	if err != nil {
@@ -54,9 +59,13 @@ func (service *DeviceServiceImpl) DeleteDevice(ctx context.Context, id string) {
 func (service *DeviceServiceImpl) GetAllDevices(ctx context.Context) []api.DeviceRs {
 	fmt.Println("Invoke GetAllDevices Service")
 
-	tx, err := service.DB.Begin()
+	conn, err := service.DB.Acquire(ctx)
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx)
+	defer conn.Release()
+
+	tx, err := conn.BeginTx(ctx, pgx.TxOptions{})
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(ctx, tx)
 
 	devices := service.DeviceRepository.GetAllDevices(ctx, tx)
 	if err != nil {
@@ -69,9 +78,13 @@ func (service *DeviceServiceImpl) GetAllDevices(ctx context.Context) []api.Devic
 func (service *DeviceServiceImpl) GetDevice(ctx context.Context, id string) api.DeviceRs {
 	fmt.Println("Invoke GetDevice Service")
 
-	tx, err := service.DB.Begin()
+	conn, err := service.DB.Acquire(ctx)
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx)
+	defer conn.Release()
+
+	tx, err := conn.BeginTx(ctx, pgx.TxOptions{})
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(ctx, tx)
 
 	device, err := service.DeviceRepository.FindDeviceById(ctx, tx, id)
 	if err != nil {
@@ -86,9 +99,13 @@ func (service *DeviceServiceImpl) AddDevice(ctx context.Context, req api.DeviceA
 	err := service.Validate.Struct(req)
 	helper.PanicIfError(err)
 
-	tx, err := service.DB.Begin()
+	conn, err := service.DB.Acquire(ctx)
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx)
+	defer conn.Release()
+
+	tx, err := conn.BeginTx(ctx, pgx.TxOptions{})
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(ctx, tx)
 
 	device := entity.Device{
 		Name: req.DeviceId,

@@ -12,9 +12,10 @@ package service
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"github.com/go-playground/validator/v10"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pakaiwa/api/app"
 	"github.com/pakaiwa/api/exception"
 	"github.com/pakaiwa/api/helper"
@@ -27,11 +28,11 @@ import (
 
 type UserServiceImpl struct {
 	Repo     repository.UserRepo
-	DB       *sql.DB
+	DB       *pgxpool.Pool
 	Validate *validator.Validate
 }
 
-func NewUserService(repo repository.UserRepo, db *sql.DB, validate *validator.Validate) UserService {
+func NewUserService(repo repository.UserRepo, db *pgxpool.Pool, validate *validator.Validate) UserService {
 	return &UserServiceImpl{
 		Repo:     repo,
 		DB:       db,
@@ -41,9 +42,13 @@ func NewUserService(repo repository.UserRepo, db *sql.DB, validate *validator.Va
 
 func (service UserServiceImpl) Logout(ctx context.Context) {
 	fmt.Println("Invoke Logout Service")
-	tx, err := service.DB.Begin()
+	conn, err := service.DB.Acquire(ctx)
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx)
+	defer conn.Release()
+
+	tx, err := conn.BeginTx(ctx, pgx.TxOptions{})
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(ctx, tx)
 
 	exist, err := service.Repo.EmailExist(ctx, tx, ctx.Value("userEmail").(string))
 	if err != nil {
@@ -63,9 +68,13 @@ func (service UserServiceImpl) Login(ctx context.Context, req api.UserRq) api.Us
 	err := service.Validate.Struct(req)
 	helper.PanicIfError(err)
 
-	tx, err := service.DB.Begin()
+	conn, err := service.DB.Acquire(ctx)
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx)
+	defer conn.Release()
+
+	tx, err := conn.BeginTx(ctx, pgx.TxOptions{})
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(ctx, tx)
 
 	user, err := service.Repo.Login(ctx, tx, req.Email, req.Password)
 	if err != nil {
@@ -81,9 +90,13 @@ func (service UserServiceImpl) CreateUser(ctx context.Context, req api.UserRq) a
 	err := service.Validate.Struct(req)
 	helper.PanicIfError(err)
 
-	tx, err := service.DB.Begin()
+	conn, err := service.DB.Acquire(ctx)
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx)
+	defer conn.Release()
+
+	tx, err := conn.BeginTx(ctx, pgx.TxOptions{})
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(ctx, tx)
 
 	exist, err := service.Repo.EmailExist(ctx, tx, req.Email)
 	if err != nil {

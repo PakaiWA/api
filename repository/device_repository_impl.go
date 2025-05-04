@@ -12,9 +12,9 @@ package repository
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/jackc/pgx/v5"
 	"github.com/pakaiwa/api/config"
 	"github.com/pakaiwa/api/helper"
 	"github.com/pakaiwa/api/model/entity"
@@ -28,12 +28,12 @@ func NewDeviceRepository() DeviceRepository {
 	return &DeviceRepositoryImpl{}
 }
 
-func (repository *DeviceRepositoryImpl) AddDevice(ctx context.Context, tx *sql.Tx, device entity.Device) (entity.Device, error) {
+func (repository *DeviceRepositoryImpl) AddDevice(ctx context.Context, tx pgx.Tx, device entity.Device) (entity.Device, error) {
 	fmt.Println("Invoke AddDevice Repository")
 
 	var count int
 	CountDeviceSQL := config.GetCountDeviceSQL()
-	err := tx.QueryRowContext(ctx, CountDeviceSQL, strings.ToLower(device.Name), ctx.Value("userEmail").(string)).Scan(&count)
+	err := tx.QueryRow(ctx, CountDeviceSQL, strings.ToLower(device.Name), ctx.Value("userEmail").(string)).Scan(&count)
 	if err != nil {
 		return device, err
 	}
@@ -46,7 +46,7 @@ func (repository *DeviceRepositoryImpl) AddDevice(ctx context.Context, tx *sql.T
 	AddDeviceSQL := config.GetAddDeviceSQL()
 	fmt.Println(AddDeviceSQL, deviceId, ctx.Value("userEmail").(string), strings.ToLower(device.Name))
 
-	err = tx.QueryRowContext(ctx, AddDeviceSQL, deviceId, ctx.Value("userEmail").(string), strings.ToLower(device.Name)).
+	err = tx.QueryRow(ctx, AddDeviceSQL, deviceId, ctx.Value("userEmail").(string), strings.ToLower(device.Name)).
 		Scan(&device.Name, &device.Status, &device.CreatedAt)
 	if err != nil {
 		return device, err
@@ -56,30 +56,21 @@ func (repository *DeviceRepositoryImpl) AddDevice(ctx context.Context, tx *sql.T
 	return device, nil
 }
 
-func (repository *DeviceRepositoryImpl) DeleteDevice(ctx context.Context, tx *sql.Tx, device entity.Device) {
+func (repository *DeviceRepositoryImpl) DeleteDevice(ctx context.Context, tx pgx.Tx, device entity.Device) {
 	fmt.Println("Invoke DeleteDevice Repository")
 
 	SQL := config.GetDeleteDeviceSQL()
-	_, err := tx.ExecContext(ctx, SQL, strings.ToLower(device.Name), ctx.Value("userEmail").(string))
+	_, err := tx.Exec(ctx, SQL, strings.ToLower(device.Name), ctx.Value("userEmail").(string))
 	helper.PanicIfError(err)
 }
 
-func (repository *DeviceRepositoryImpl) FindDeviceById(ctx context.Context, tx *sql.Tx, deviceId string) (entity.Device, error) {
+func (repository *DeviceRepositoryImpl) FindDeviceById(ctx context.Context, tx pgx.Tx, deviceId string) (entity.Device, error) {
 	fmt.Println("Invoke FindDeviceById Repository")
 
 	SQL := config.GetDeviceByIdSQL()
-	rows, err := tx.QueryContext(ctx, SQL, strings.ToLower(deviceId), ctx.Value("userEmail").(string))
+	rows, err := tx.Query(ctx, SQL, strings.ToLower(deviceId), ctx.Value("userEmail").(string))
 	helper.PanicIfError(err)
-	defer func(rows *sql.Rows) {
-		err := rows.Close()
-		if err != nil {
-			helper.PanicIfError(err)
-		}
-	}(rows)
-
-	var connectedAt sql.NullString
-	var disconnectedAt sql.NullString
-	var disconnectedReason sql.NullString
+	defer rows.Close()
 
 	device := entity.Device{}
 
@@ -90,38 +81,25 @@ func (repository *DeviceRepositoryImpl) FindDeviceById(ctx context.Context, tx *
 			&device.Status,
 			&device.PhoneNumber,
 			&device.CreatedAt,
-			&connectedAt,
-			&disconnectedAt,
-			&disconnectedReason,
+			&device.ConnectedAt,
+			&device.DisconnectedAt,
+			&device.DisconnectedReason,
 		)
 		helper.PanicIfError(err)
-
-		device.ConnectedAt = utils.SafeString(connectedAt)
-		device.DisconnectedAt = utils.SafeString(disconnectedAt)
-		device.DisconnectedReason = utils.SafeString(disconnectedReason)
-
 		return device, nil
 	} else {
 		return device, errors.New("error: Device not found")
 	}
 }
 
-func (repository *DeviceRepositoryImpl) GetAllDevices(ctx context.Context, tx *sql.Tx) []entity.Device {
+func (repository *DeviceRepositoryImpl) GetAllDevices(ctx context.Context, tx pgx.Tx) []entity.Device {
 	fmt.Println("Invoke GetAllDevices Repository")
 
 	SQL := config.GetAllDevicesSQL()
-	rows, err := tx.QueryContext(ctx, SQL, ctx.Value("userEmail").(string))
+	fmt.Println(SQL, ctx.Value("userEmail").(string))
+	rows, err := tx.Query(ctx, SQL, ctx.Value("userEmail").(string))
 	helper.PanicIfError(err)
-	defer func(rows *sql.Rows) {
-		err := rows.Close()
-		if err != nil {
-			helper.PanicIfError(err)
-		}
-	}(rows)
-
-	var connectedAt sql.NullString
-	var disconnectedAt sql.NullString
-	var disconnectedReason sql.NullString
+	defer rows.Close()
 
 	var devices []entity.Device
 
@@ -132,15 +110,11 @@ func (repository *DeviceRepositoryImpl) GetAllDevices(ctx context.Context, tx *s
 			&device.Status,
 			&device.PhoneNumber,
 			&device.CreatedAt,
-			&connectedAt,
-			&disconnectedAt,
-			&disconnectedReason,
+			&device.ConnectedAt,
+			&device.DisconnectedAt,
+			&device.DisconnectedReason,
 		)
 		helper.PanicIfError(err)
-		device.ConnectedAt = utils.SafeString(connectedAt)
-		device.DisconnectedAt = utils.SafeString(disconnectedAt)
-		device.DisconnectedReason = utils.SafeString(disconnectedReason)
-
 		devices = append(devices, device)
 	}
 

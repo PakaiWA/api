@@ -12,8 +12,8 @@ package repository
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
+	"github.com/jackc/pgx/v5"
 	"github.com/pakaiwa/api/helper"
 	"github.com/pakaiwa/api/model/entity"
 	"github.com/pakaiwa/api/utils"
@@ -25,14 +25,14 @@ func NewUserRepo() UserRepo {
 	return &UserRepoImpl{}
 }
 
-func (repo UserRepoImpl) CreateUser(ctx context.Context, tx *sql.Tx, user entity.User) entity.User {
+func (repo UserRepoImpl) CreateUser(ctx context.Context, tx pgx.Tx, user entity.User) entity.User {
 	fmt.Println("Invoke CreateUser Repository")
 
 	uuid := utils.GenerateUUID()
 
 	SQL := "insert into management.users (uuid, email, password) values ($1, $2, $3)"
 	fmt.Println(SQL, uuid, user.Email, "[REDACTED]")
-	_, err := tx.ExecContext(ctx, SQL, uuid, user.Email, user.Password)
+	_, err := tx.Exec(ctx, SQL, uuid, user.Email, user.Password)
 	if err != nil {
 		helper.PanicIfError(err)
 	}
@@ -44,11 +44,11 @@ func (repo UserRepoImpl) CreateUser(ctx context.Context, tx *sql.Tx, user entity
 	return user
 }
 
-func (repo UserRepoImpl) EmailExist(ctx context.Context, tx *sql.Tx, email string) (bool, error) {
+func (repo UserRepoImpl) EmailExist(ctx context.Context, tx pgx.Tx, email string) (bool, error) {
 	fmt.Println("Invoke FindByEmail Repository")
 	var count int
 	SQL := "select count(*) from management.users where email = $1"
-	err := tx.QueryRowContext(ctx, SQL, email).Scan(&count)
+	err := tx.QueryRow(ctx, SQL, email).Scan(&count)
 	if err != nil {
 		fmt.Println("Error executing query:", err)
 		return true, err
@@ -57,13 +57,13 @@ func (repo UserRepoImpl) EmailExist(ctx context.Context, tx *sql.Tx, email strin
 	return count != 0, nil
 }
 
-func (repo UserRepoImpl) Login(ctx context.Context, tx *sql.Tx, email, pass string) (entity.User, error) {
+func (repo UserRepoImpl) Login(ctx context.Context, tx pgx.Tx, email, pass string) (entity.User, error) {
 	fmt.Println("Invoke Login Repository")
 	SQL := "SELECT uuid, email, password FROM management.users WHERE email = $1"
 
 	user := entity.User{}
 
-	err := tx.QueryRowContext(ctx, SQL, email).Scan(&user.Uuid, &user.Email, &user.Password)
+	err := tx.QueryRow(ctx, SQL, email).Scan(&user.Uuid, &user.Email, &user.Password)
 	if err != nil {
 		fmt.Println("Error executing query:", err)
 		return user, err

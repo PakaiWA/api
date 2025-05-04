@@ -10,16 +10,19 @@
 
 package helper
 
-import "database/sql"
+import (
+	"context"
+	"github.com/jackc/pgx/v5"
+)
 
-func CommitOrRollback(tx *sql.Tx) {
+func CommitOrRollback(ctx context.Context, tx pgx.Tx) {
 	err := recover()
 	if err != nil {
-		errorRollback := tx.Rollback()
+		errorRollback := tx.Rollback(ctx)
 		PanicIfError(errorRollback)
 		panic(err)
 	} else {
-		errorCommit := tx.Commit()
+		errorCommit := tx.Commit(ctx)
 		PanicIfError(errorCommit)
 	}
 }
