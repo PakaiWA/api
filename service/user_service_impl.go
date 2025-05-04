@@ -22,6 +22,7 @@ import (
 	"github.com/pakaiwa/api/model/entity"
 	"github.com/pakaiwa/api/repository"
 	"github.com/pakaiwa/api/utils"
+	"net/http"
 	"time"
 )
 
@@ -53,7 +54,7 @@ func (service UserServiceImpl) Logout(ctx context.Context) {
 	}
 
 	if !exist {
-		panic(exception.NewBadRequestError("invalid token: email not registered"))
+		panic(exception.NewHTTPError(http.StatusBadRequest, "invalid token: email not registered"))
 	}
 
 	app.RedisClient.Set(ctx, ctx.Value("userEmail").(string), time.Now().Unix(), 0)
@@ -95,8 +96,7 @@ func (service UserServiceImpl) CreateUser(ctx context.Context, req api.UserRq) a
 	}
 
 	if exist {
-		fmt.Println("Email already exists")
-		panic(exception.NewBadRequestError("Email already registered"))
+		panic(exception.NewHTTPError(http.StatusBadRequest, "Email already registered"))
 	}
 
 	pass, _ := utils.HashPassword(req.Password)

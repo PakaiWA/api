@@ -59,7 +59,7 @@ func (controller *QRControllerImpl) showQR(writer http.ResponseWriter, request *
 
 	qrCode := request.URL.Query().Get("qrCode")
 	if qrCode == "" {
-		panic(exception.NewBadRequestError("qrCode query param is required"))
+		panic(exception.NewHTTPError(http.StatusBadRequest, "qrCode query param is required"))
 		return
 	}
 

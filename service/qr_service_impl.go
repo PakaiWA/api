@@ -23,7 +23,10 @@ import (
 	"github.com/pakaiwa/pakaiwa/store/sqlstore"
 	waLog "github.com/pakaiwa/pakaiwa/util/log"
 	"log"
+	"net/http"
+	"os"
 	"sync"
+	"time"
 )
 
 type QRServiceImpl struct {
@@ -52,7 +55,7 @@ func (service QRServiceImpl) GetQRCode(ctx context.Context, deviceId string) api
 
 	device, err := service.DeviceRepository.FindDeviceById(ctx, tx, deviceId)
 	if err != nil {
-		panic(exception.NewNotFoundError(err.Error()))
+		panic(exception.NewHTTPError(http.StatusNotFound, err.Error()))
 	}
 	fmt.Println("Get QR Code Success", device)
 

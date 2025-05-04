@@ -11,83 +11,45 @@
 package exception
 
 import (
+	"fmt"
 	"github.com/go-playground/validator/v10"
 	"github.com/pakaiwa/api/model/api"
 	"net/http"
 )
 
-func ErrorHandler(writer http.ResponseWriter, request *http.Request, err interface{}) {
-
-	if badRequestError(writer, request, err) {
-		return
-	}
-
-	if notFoundError(writer, request, err) {
-		return
-	}
-
-	if validationErrors(writer, request, err) {
-		return
-	}
-
-	internalServerError(writer, request, err)
+type HTTPError struct {
+	Code   int
+	Status string
+	Msg    string
 }
 
-func validationErrors(writer http.ResponseWriter, request *http.Request, err interface{}) bool {
-	exception, ok := err.(validator.ValidationErrors)
-	if ok {
-		webResponse := api.ResponseAPI{
-			Code:   http.StatusBadRequest,
-			Status: "BAD REQUEST",
-			Data:   exception.Error(),
-		}
-
-		api.WriteToResponseBody(writer, http.StatusBadRequest, webResponse)
-		return true
-	} else {
-		return false
-	}
+func NewHTTPError(code int, msg string) HTTPError {
+	return HTTPError{Code: code, Msg: msg}
 }
 
-func badRequestError(writer http.ResponseWriter, request *http.Request, err interface{}) bool {
-	exception, ok := err.(BadRequestError)
-	if ok {
-		webResponse := api.ResponseAPI{
-			Code:   http.StatusBadRequest,
-			Status: "BAD REQUEST",
-			Data:   exception.Error,
-		}
-
-		api.WriteToResponseBody(writer, webResponse.Code, webResponse)
-		return true
-	} else {
-		return false
-	}
+func (e HTTPError) Error() string {
+	return e.Msg
 }
 
-func notFoundError(writer http.ResponseWriter, request *http.Request, err interface{}) bool {
-	exception, ok := err.(NotFoundError)
-	if ok {
-
-		webResponse := api.ResponseAPI{
-			Code:   http.StatusNotFound,
-			Status: "NOT FOUND",
-			Data:   exception.Error,
-		}
-
-		api.WriteToResponseBody(writer, http.StatusNotFound, webResponse)
-		return true
-	} else {
-		return false
-	}
-}
-
-func internalServerError(writer http.ResponseWriter, request *http.Request, err interface{}) {
-	webResponse := api.ResponseAPI{
+func ErrorHandler(w http.ResponseWriter, r *http.Request, err interface{}) {
+	apiRs := api.ResponseAPI{
 		Code:   http.StatusInternalServerError,
 		Status: "INTERNAL SERVER ERROR",
-		Data:   err,
+		Data:   fmt.Sprintf("%v", err),
 	}
 
-	api.WriteToResponseBody(writer, http.StatusInternalServerError, webResponse)
+	switch e := err.(type) {
+	case validator.ValidationErrors:
+		apiRs.Code = http.StatusBadRequest
+		apiRs.Status = "BAD REQUEST"
+		apiRs.Data = e.Error()
+	case HTTPError:
+		apiRs.Data = e.Msg
+		apiRs.Code = e.Code
+		apiRs.Status = http.StatusText(e.Code)
+	default:
+		apiRs.Code = http.StatusInternalServerError
+	}
+
+	api.WriteToResponseBody(w, apiRs.Code, apiRs)
 }

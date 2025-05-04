@@ -20,6 +20,7 @@ import (
 	"github.com/pakaiwa/api/model/api"
 	"github.com/pakaiwa/api/model/entity"
 	"github.com/pakaiwa/api/repository"
+	"net/http"
 )
 
 type DeviceServiceImpl struct {
@@ -46,7 +47,7 @@ func (service *DeviceServiceImpl) DeleteDevice(ctx context.Context, id string) {
 
 	device, err := service.DeviceRepository.FindDeviceById(ctx, tx, id)
 	if err != nil {
-		panic(exception.NewNotFoundError(err.Error()))
+		panic(exception.NewHTTPError(http.StatusNotFound, err.Error()))
 	}
 
 	service.DeviceRepository.DeleteDevice(ctx, tx, device)
@@ -75,7 +76,7 @@ func (service *DeviceServiceImpl) GetDevice(ctx context.Context, id string) api.
 
 	device, err := service.DeviceRepository.FindDeviceById(ctx, tx, id)
 	if err != nil {
-		panic(exception.NewNotFoundError(err.Error()))
+		panic(exception.NewHTTPError(http.StatusNotFound, err.Error()))
 	}
 
 	return api.ToDeviceResponse(device)
@@ -97,7 +98,7 @@ func (service *DeviceServiceImpl) AddDevice(ctx context.Context, req api.DeviceA
 
 	device, err = service.DeviceRepository.AddDevice(ctx, tx, device)
 	if err != nil {
-		panic(exception.NewBadRequestError(err.Error()))
+		panic(exception.NewHTTPError(http.StatusBadRequest, err.Error()))
 	}
 
 	return api.ToDeviceResponse(device)
