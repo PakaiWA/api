@@ -5,7 +5,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //
 // @author KAnggara75 on Sun 04/05/25 22.05
-// @project api usecase
+// @project api https://github.com/PakaiWA/api/tree/main/usecase
 //
 
 package usecase
@@ -13,12 +13,13 @@ package usecase
 import (
 	"context"
 	"fmt"
+	"net/http"
+
 	"github.com/pakaiwa/api/exception"
 	"github.com/pakaiwa/api/model/api"
 	"github.com/pakaiwa/api/service"
 	"github.com/pakaiwa/api/session"
 	"github.com/pakaiwa/api/utils"
-	"net/http"
 )
 
 type QRUsecaseImpl struct {

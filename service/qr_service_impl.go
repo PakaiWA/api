@@ -5,7 +5,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //
 // @author KAnggara75 on Sat 03/05/25 15.54
-// @project api service
+// @project api https://github.com/PakaiWA/api/tree/main/service
 //
 
 package service
@@ -13,13 +13,14 @@ package service
 import (
 	"context"
 	"fmt"
+	"net/http"
+
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pakaiwa/api/exception"
 	"github.com/pakaiwa/api/helper"
 	"github.com/pakaiwa/api/model/api"
 	"github.com/pakaiwa/api/repository"
 	"github.com/pakaiwa/api/session"
-	"net/http"
 )
 
 type QRServiceImpl struct {

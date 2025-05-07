@@ -5,15 +5,16 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //
 // @author KAnggara75 on Sun 04/05/25 22.04
-// @project api usecase
+// @project api https://github.com/PakaiWA/api/tree/main/usecase
 //
 
 package usecase
 
 import (
 	"context"
-	"github.com/pakaiwa/api/model/api"
 	"net/http"
+
+	"github.com/pakaiwa/api/model/api"
 )
 
 type QRUsecase interface {

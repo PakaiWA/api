@@ -5,18 +5,19 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //
 // @author KAnggara75 on Sun 04/05/25 21.55
-// @project api session
+// @project api https://github.com/PakaiWA/api/tree/main/session
 //
 
 package session
 
 import (
 	"context"
-	"github.com/mdp/qrterminal/v3"
-	"github.com/pakaiwa/pakaiwa"
 	"log"
 	"os"
 	"time"
+
+	"github.com/mdp/qrterminal/v3"
+	"github.com/pakaiwa/pakaiwa"
 )
 
 func QRHandler(client *pakaiwa.Client) string {

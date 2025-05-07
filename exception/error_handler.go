@@ -5,16 +5,17 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //
 // @author KAnggara75 on Sun 27/04/25 17.19
-// @project api exception
+// @project api https://github.com/PakaiWA/api/tree/main/exception
 //
 
 package exception
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/go-playground/validator/v10"
 	"github.com/pakaiwa/api/model/api"
-	"net/http"
 )
 
 type HTTPError struct {

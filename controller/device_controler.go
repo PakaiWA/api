@@ -5,14 +5,15 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //
 // @author KAnggara75 on Sun 27/04/25 17.13
-// @project api controller
+// @project api https://github.com/PakaiWA/api/tree/main/controller
 //
 
 package controller
 
 import (
-	"github.com/julienschmidt/httprouter"
 	"net/http"
+
+	"github.com/julienschmidt/httprouter"
 )
 
 type DeviceController interface {

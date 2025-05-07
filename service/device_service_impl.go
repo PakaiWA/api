@@ -5,7 +5,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //
 // @author KAnggara75 on Sun 27/04/25 18.19
-// @project api service
+// @project api https://github.com/PakaiWA/api/tree/main/service
 //
 
 package service
@@ -13,6 +13,8 @@ package service
 import (
 	"context"
 	"fmt"
+	"net/http"
+
 	"github.com/go-playground/validator/v10"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pakaiwa/api/exception"
@@ -20,7 +22,6 @@ import (
 	"github.com/pakaiwa/api/model/api"
 	"github.com/pakaiwa/api/model/entity"
 	"github.com/pakaiwa/api/repository"
-	"net/http"
 )
 
 type DeviceServiceImpl struct {

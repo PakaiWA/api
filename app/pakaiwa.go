@@ -5,7 +5,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //
 // @author KAnggara75 on Fri 02/05/25 22.54
-// @project api app
+// @project api https://github.com/PakaiWA/api/tree/main/app
 //
 
 package app
@@ -13,15 +13,16 @@ package app
 import (
 	"context"
 	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
+
 	"github.com/mdp/qrterminal/v3"
 	"github.com/pakaiwa/api/config"
 	"github.com/pakaiwa/pakaiwa"
 	"github.com/pakaiwa/pakaiwa/store/sqlstore"
 	"github.com/pakaiwa/pakaiwa/types/events"
 	waLog "github.com/pakaiwa/pakaiwa/util/log"
-	"os"
-	"os/signal"
-	"syscall"
 )
 
 func NewPakaiWA() {

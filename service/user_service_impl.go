@@ -5,7 +5,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //
 // @author KAnggara75 on Thu 01/05/25 13.58
-// @project api service
+// @project api https://github.com/PakaiWA/api/tree/main/service
 //
 
 package service
@@ -13,6 +13,9 @@ package service
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"time"
+
 	"github.com/go-playground/validator/v10"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pakaiwa/api/app"
@@ -22,8 +25,6 @@ import (
 	"github.com/pakaiwa/api/model/entity"
 	"github.com/pakaiwa/api/repository"
 	"github.com/pakaiwa/api/utils"
-	"net/http"
-	"time"
 )
 
 type UserServiceImpl struct {

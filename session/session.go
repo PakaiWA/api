@@ -5,7 +5,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //
 // @author KAnggara75 on Sat 03/05/25 13.11
-// @project api session
+// @project api https://github.com/PakaiWA/api/tree/main/session
 //
 
 package session
@@ -13,6 +13,8 @@ package session
 import (
 	"context"
 	"fmt"
+	"os"
+
 	"github.com/mdp/qrterminal/v3"
 	"github.com/pakaiwa/api/config"
 	"github.com/pakaiwa/pakaiwa"
@@ -20,7 +22,6 @@ import (
 	"github.com/pakaiwa/pakaiwa/types"
 	"github.com/pakaiwa/pakaiwa/types/events"
 	waLog "github.com/pakaiwa/pakaiwa/util/log"
-	"os"
 )
 
 func StartDeviceSession(userJID string) (*pakaiwa.Client, error) {

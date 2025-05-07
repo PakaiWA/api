@@ -5,7 +5,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //
 // @author KAnggara75 on Sun 27/04/25 18.09
-// @project api repository
+// @project api https://github.com/PakaiWA/api/tree/main/repository
 //
 
 package repository
@@ -14,12 +14,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
+
 	"github.com/jackc/pgx/v5"
 	"github.com/pakaiwa/api/config"
 	"github.com/pakaiwa/api/helper"
 	"github.com/pakaiwa/api/model/entity"
 	"github.com/pakaiwa/api/utils"
-	"strings"
 )
 
 type DeviceRepositoryImpl struct{}

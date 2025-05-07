@@ -5,14 +5,15 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //
 // @author KAnggara75 on Sat 03/05/25 15.07
-// @project api controller
+// @project api https://github.com/PakaiWA/api/tree/main/controller
 //
 
 package controller
 
 import (
-	"github.com/julienschmidt/httprouter"
 	"net/http"
+
+	"github.com/julienschmidt/httprouter"
 )
 
 type QRController interface {

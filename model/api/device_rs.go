@@ -5,15 +5,16 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //
 // @author KAnggara75 on Sun 27/04/25 17.27
-// @project api api
+// @project api https://github.com/PakaiWA/api/tree/main/api
 //
 
 package api
 
 import (
 	"fmt"
-	"github.com/pakaiwa/api/model/entity"
 	"time"
+
+	"github.com/pakaiwa/api/model/entity"
 )
 
 type DeviceRs struct {

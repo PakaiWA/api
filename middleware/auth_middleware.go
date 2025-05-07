@@ -5,7 +5,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //
 // @author KAnggara75 on Wed 30/04/25 23.06
-// @project api middleware
+// @project api https://github.com/PakaiWA/api/tree/main/middleware
 //
 
 package middleware
@@ -13,16 +13,17 @@ package middleware
 import (
 	"context"
 	"errors"
+	"log"
+	"net/http"
+	"strconv"
+	"strings"
+
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/julienschmidt/httprouter"
 	"github.com/pakaiwa/api/app"
 	"github.com/pakaiwa/api/config"
 	"github.com/pakaiwa/api/model/api"
 	"github.com/redis/go-redis/v9"
-	"log"
-	"net/http"
-	"strconv"
-	"strings"
 )
 
 type PakaiWAClaim struct {

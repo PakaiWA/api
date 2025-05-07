@@ -5,19 +5,20 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //
 // @author KAnggara75 on Sun 27/04/25 18.20
-// @project api controller
+// @project api https://github.com/PakaiWA/api/tree/main/controller
 //
 
 package controller
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/julienschmidt/httprouter"
 	"github.com/pakaiwa/api/middleware"
 	"github.com/pakaiwa/api/model/api"
 	"github.com/pakaiwa/api/service"
 	"github.com/pakaiwa/api/utils"
-	"net/http"
 )
 
 type DeviceControllerImpl struct {

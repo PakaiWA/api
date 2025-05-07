@@ -5,7 +5,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //
 // @author KAnggara75 on Sun 27/04/25 15.43
-// @project api config
+// @project api https://github.com/PakaiWA/api/tree/main/config
 //
 
 package config
