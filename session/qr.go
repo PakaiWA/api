@@ -21,9 +21,7 @@ import (
 )
 
 func QRHandler(client *pakaiwa.Client) string {
-
 	qrChan, _ := client.GetQRChannel(context.Background())
-	qrCode := ""
 
 	err := client.Connect()
 	if err != nil {
@@ -31,27 +29,44 @@ func QRHandler(client *pakaiwa.Client) string {
 		return ""
 	}
 
-	timeout := time.After(30 * time.Second)
+	qrCodeChan := make(chan string)
+	authenticated := make(chan struct{})
 
-	for {
-		select {
-		case evt, ok := <-qrChan:
-			if !ok {
-				log.Println("QR Channel closed")
-				return ""
-			}
-			if evt.Event == "code" {
-				qrCode = evt.Code
-				log.Println("QR code received:", qrCode)
-				qrterminal.GenerateHalfBlock(evt.Code, qrterminal.L, os.Stdout)
-				return qrCode
-			} else {
+	go func() {
+		for evt := range qrChan {
+			switch evt.Event {
+			case "code":
+				qrCodeChan <- evt.Code
+			case "success":
+				log.Println("Client authenticated successfully")
+				authenticated <- struct{}{}
+				return
+			default:
 				log.Println("QR event:", evt.Event)
 			}
-		case <-timeout:
-			log.Println("Timeout waiting for QR code")
-			return ""
 		}
+	}()
+
+	qrCode := ""
+	select {
+	case qrCode = <-qrCodeChan:
+		log.Println("QR code received:", qrCode)
+		qrterminal.GenerateHalfBlock(qrCode, qrterminal.L, os.Stdout)
+	case <-time.After(10 * time.Second):
+		log.Println("Failed to receive QR code")
+		client.Disconnect()
+		return ""
 	}
 
+	go func() {
+		select {
+		case <-authenticated:
+			log.Println("user QR code authenticated")
+		case <-time.After(30 * time.Second):
+			log.Println("QR code not scanned within 30s, disconnecting client...")
+			client.Disconnect()
+		}
+	}()
+
+	return qrCode
 }
