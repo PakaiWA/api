@@ -13,6 +13,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/pakaiwa/api/session"
 	"net/http"
 	"os"
 	"time"
@@ -36,6 +37,7 @@ var ctx = context.Background()
 func init() {
 	scc2go.GetEnv(os.Getenv("SCC_URL"), os.Getenv("AUTH"))
 	app.NewRedisClient()
+	session.RestoreAllClient()
 }
 
 func main() {
