@@ -26,7 +26,7 @@ import (
 
 func StartDeviceSession(userJID string) (*pakaiwa.Client, error) {
 	jid := types.NewJID(userJID, types.DefaultUserServer)
-	dbLog := waLog.Stdout("Database", "DEBUG", true)
+	dbLog := waLog.Stdout("Database", "INFO", true)
 	container, err := sqlstore.New(config.GetDBCon(), dbLog)
 	if err != nil {
 		panic(err)

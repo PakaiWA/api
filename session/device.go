@@ -39,14 +39,14 @@ func NewDevicePakaiWA(deviceId string) *pakaiwa.Client {
 	}
 
 	// Load device and store
-	dbLog := waLog.Stdout("DB", "DEBUG", true)
+	dbLog := waLog.Stdout("DB", "INFO", true)
 	container, err := sqlstore.New(config.GetDBCon(), dbLog)
 	if err != nil {
 		helper.PanicIfError(err)
 	}
 
 	store := container.NewDevice()
-	client := pakaiwa.NewClient(store, waLog.Stdout("PakaiWA", "DEBUG", true))
+	client := pakaiwa.NewClient(store, waLog.Stdout("PakaiWA", "INFO", true))
 
 	clientMap[deviceId] = client
 

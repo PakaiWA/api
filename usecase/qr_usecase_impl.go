@@ -32,6 +32,7 @@ func NewQRUsecase(QRService service.QRService, DeviceService service.DeviceServi
 }
 
 func (usecase QRUsecaseImpl) GetQRCode(ctx context.Context, request *http.Request) api.QRCodeRs {
+	fmt.Println("Invoke GetQRCode Usecase")
 	// Check if the device is registered
 	device, err := usecase.DeviceService.GetDeviceById(ctx, request.URL.Query().Get("device_id"))
 	if err != nil {
