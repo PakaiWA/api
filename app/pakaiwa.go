@@ -18,19 +18,12 @@ import (
 	"syscall"
 
 	"github.com/mdp/qrterminal/v3"
-	"github.com/pakaiwa/api/config"
 	"github.com/pakaiwa/pakaiwa"
-	"github.com/pakaiwa/pakaiwa/store/sqlstore"
 	"github.com/pakaiwa/pakaiwa/types/events"
-	waLog "github.com/pakaiwa/pakaiwa/util/log"
 )
 
 func NewPakaiWA() {
-	dbLog := waLog.Stdout("Database", "DEBUG", true)
-	container, err := sqlstore.New(config.GetDBCon(), dbLog)
-	if err != nil {
-		panic(err)
-	}
+	container := GetContainer()
 
 	// If you want multiple sessions, remember their JIDs and use .GetDevice(jid) or .GetAllDevices() instead.
 	deviceStore, err := container.GetFirstDevice()
