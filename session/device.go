@@ -12,13 +12,11 @@ package session
 
 import (
 	"fmt"
+	"github.com/pakaiwa/api/app"
 	"log"
 	"sync"
 
-	"github.com/pakaiwa/api/config"
-	"github.com/pakaiwa/api/helper"
 	"github.com/pakaiwa/pakaiwa"
-	"github.com/pakaiwa/pakaiwa/store/sqlstore"
 	waLog "github.com/pakaiwa/pakaiwa/util/log"
 )
 
@@ -38,13 +36,7 @@ func NewDevicePakaiWA(deviceId string) *pakaiwa.Client {
 		}
 	}
 
-	// Load device and store
-	dbLog := waLog.Stdout("DB", "INFO", true)
-	container, err := sqlstore.New(config.GetDBCon(), dbLog)
-	if err != nil {
-		helper.PanicIfError(err)
-	}
-
+	container := app.GetContainer()
 	store := container.NewDevice()
 	client := pakaiwa.NewClient(store, waLog.Stdout("PakaiWA", "INFO", true))
 

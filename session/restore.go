@@ -12,28 +12,23 @@
 package session
 
 import (
-	"github.com/pakaiwa/api/config"
+	"github.com/pakaiwa/api/app"
 	"github.com/pakaiwa/pakaiwa"
 	"github.com/pakaiwa/pakaiwa/store"
-	"github.com/pakaiwa/pakaiwa/store/sqlstore"
 	waLog "github.com/pakaiwa/pakaiwa/util/log"
 	"log"
 	"time"
 )
 
 func RestoreAllClient() {
-	dbLog := waLog.Stdout("Database", "INFO", true)
-	container, err := sqlstore.New(config.GetDBCon(), dbLog)
-	if err != nil {
-		panic(err)
-	}
+	container := app.GetContainer()
 
 	deviceStore, err := container.GetAllDevices()
 	if err != nil {
 		panic(err)
 	}
 
-	clientLog := waLog.Stdout("Client", "INFO", true)
+	clientLog := waLog.Stdout("PakaiWA", "INFO", true)
 
 	var successCount, failCount int
 

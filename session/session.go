@@ -13,28 +13,20 @@ package session
 import (
 	"context"
 	"fmt"
+	"github.com/pakaiwa/api/app"
 	"os"
 
 	"github.com/mdp/qrterminal/v3"
-	"github.com/pakaiwa/api/config"
 	"github.com/pakaiwa/pakaiwa"
-	"github.com/pakaiwa/pakaiwa/store/sqlstore"
 	"github.com/pakaiwa/pakaiwa/types"
 	"github.com/pakaiwa/pakaiwa/types/events"
-	waLog "github.com/pakaiwa/pakaiwa/util/log"
 )
 
 func StartDeviceSession(userJID string) (*pakaiwa.Client, error) {
 	jid := types.NewJID(userJID, types.DefaultUserServer)
-	dbLog := waLog.Stdout("Database", "INFO", true)
-	container, err := sqlstore.New(config.GetDBCon(), dbLog)
-	if err != nil {
-		panic(err)
-	}
+	container := app.GetContainer()
 	fmt.Println("StartDeviceSession Connecting to database...", jid)
 	deviceStore := container.NewDevice()
-
-	//clientLog := waLog.Stdout("PAKAIWA", "DEBUG", true)
 	client := pakaiwa.NewClient(container.NewDevice(), nil)
 	fmt.Println("StartDeviceSession Connecting to client...")
 	fmt.Println("DeviceStore:", deviceStore.LID, deviceStore.ID)
