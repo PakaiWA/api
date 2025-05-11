@@ -21,12 +21,12 @@ import (
 )
 
 var (
-	pool *pgxpool.Pool
-	once sync.Once
+	pool   *pgxpool.Pool
+	onceDb sync.Once
 )
 
 func NewDBConn(ctx context.Context) *pgxpool.Pool {
-	once.Do(func() {
+	onceDb.Do(func() {
 		var err error
 		pool, err = pgxpool.New(ctx, config.GetDBCon())
 		helper.PanicIfError(err)
