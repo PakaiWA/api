@@ -1,3 +1,6 @@
+create schema if not exists management;
+create schema if not exists pakaiwa;
+-- =======================================================================
 drop table if exists pakaiwa.management.user_devices;
 drop table if exists pakaiwa.management.users;
 -- =======================================================================
@@ -16,14 +19,14 @@ create table if not exists pakaiwa.management.user_devices
     name                varchar(100) not null,
     status              varchar(20)  default 'disconnected',
     phone_number        varchar(20)  default '',
-    jid                 varchar(100) default null,
+    jid                 varchar(100) default null unique,
     created_at          timestamp    default LOCALTIMESTAMP,
     connected_at        timestamp,
     disconnected_at     timestamp,
     disconnected_reason varchar(100),
-    FOREIGN KEY (user_uuid) REFERENCES pakaiwa.management.users (uuid) ON DELETE CASCADE,
-    FOREIGN KEY (jid) REFERENCES pakaiwa.pakaiwa.device (jid) ON DELETE CASCADE
+    FOREIGN KEY (user_uuid) REFERENCES pakaiwa.management.users (uuid) ON DELETE CASCADE
 );
+CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_jid ON pakaiwa.management.user_devices (jid);
 CREATE INDEX IF NOT EXISTS user_devices_user_idx on pakaiwa.management.user_devices (user_uuid);
 CREATE UNIQUE INDEX IF NOT EXISTS user_device_unique_name_per_user ON pakaiwa.management.user_devices (user_uuid, name);
 -- =======================================================================
