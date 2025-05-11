@@ -13,11 +13,7 @@ package service
 import (
 	"context"
 	"fmt"
-	"net/http"
-
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/pakaiwa/api/exception"
-	"github.com/pakaiwa/api/helper"
 	"github.com/pakaiwa/api/model/api"
 	"github.com/pakaiwa/api/repository"
 	"github.com/pakaiwa/api/session"
@@ -37,19 +33,10 @@ func NewQRService(deviceRepository repository.DeviceRepository, DB *pgxpool.Pool
 
 func (service QRServiceImpl) GetQRCode(ctx context.Context, deviceId string) api.QRCodeRs {
 	fmt.Println("Invoke GetQRCode Service")
-	tx, conn, err := helper.DBTransaction(ctx, service.DB)
-	helper.PanicIfError(err)
-	defer conn.Release()
-	defer helper.CommitOrRollback(ctx, tx)
 
-	device, err := service.DeviceRepository.FindDeviceById(ctx, tx, deviceId)
-	if err != nil {
-		panic(exception.NewHTTPError(http.StatusNotFound, err.Error()))
-	}
+	pakaiwaClient := session.NewDevicePakaiWA(deviceId)
 
-	pakaiwaClient := session.NewDevicePakaiWA(device.Id)
-
-	qrCode := session.QRHandler(pakaiwaClient)
+	qrCode := session.QRHandler(ctx, pakaiwaClient)
 
 	QRResponse := api.QRCodeRs{
 		QRCode: qrCode,

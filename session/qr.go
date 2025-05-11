@@ -20,8 +20,8 @@ import (
 	"github.com/pakaiwa/pakaiwa"
 )
 
-func QRHandler(client *pakaiwa.Client) string {
-	qrChan, _ := client.GetQRChannel(context.Background())
+func QRHandler(ctx context.Context, client *pakaiwa.Client) string {
+	qrChan, _ := client.GetQRChannel(ctx)
 
 	err := client.Connect()
 	if err != nil {

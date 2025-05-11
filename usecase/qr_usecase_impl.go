@@ -18,7 +18,6 @@ import (
 	"github.com/pakaiwa/api/exception"
 	"github.com/pakaiwa/api/model/api"
 	"github.com/pakaiwa/api/service"
-	"github.com/pakaiwa/api/session"
 	"github.com/pakaiwa/api/utils"
 )
 
@@ -38,16 +37,12 @@ func (usecase QRUsecaseImpl) GetQRCode(ctx context.Context, request *http.Reques
 	if err != nil {
 		panic(exception.NewHTTPError(http.StatusNotFound, err.Error()))
 	}
-	fmt.Println(device)
 
-	pakaiwaClient := session.NewDevicePakaiWA(device.Id)
-
-	//QR service
-	qrCode := session.QRHandler(pakaiwaClient)
+	qrCode := usecase.QRService.GetQRCode(ctx, device.Id)
 
 	QRResponse := api.QRCodeRs{
-		QRCode:   qrCode,
-		ImageUrl: utils.GetHost(request) + "/qr/show?qrCode=" + qrCode,
+		QRCode:   qrCode.QRCode,
+		ImageUrl: utils.GetHost(request) + "/qr/show?qrCode=" + qrCode.ImageUrl,
 	}
 
 	return QRResponse
