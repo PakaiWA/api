@@ -14,7 +14,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/pakaiwa/api/model/api"
 	"github.com/pakaiwa/api/repository"
 	"github.com/pakaiwa/api/session"
 )
@@ -31,15 +30,12 @@ func NewQRService(deviceRepository repository.DeviceRepository, DB *pgxpool.Pool
 	}
 }
 
-func (service QRServiceImpl) GetQRCode(ctx context.Context, deviceId string) api.QRCodeRs {
+func (service QRServiceImpl) GetQRCode(ctx context.Context, deviceId string) string {
 	fmt.Println("Invoke GetQRCode Service")
 
 	pakaiwaClient := session.NewDevicePakaiWA(deviceId)
 
 	qrCode := session.QRHandler(ctx, pakaiwaClient)
 
-	QRResponse := api.QRCodeRs{
-		QRCode: qrCode,
-	}
-	return QRResponse
+	return qrCode
 }

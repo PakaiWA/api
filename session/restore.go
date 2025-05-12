@@ -48,6 +48,8 @@ func RestoreAllClient() {
 				failCount++
 				return
 			}
+			jid := device.ID.String()
+			RegisterClient(jid, client)
 			successCount++
 		}(device)
 	}

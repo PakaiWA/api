@@ -41,8 +41,8 @@ func (usecase QRUsecaseImpl) GetQRCode(ctx context.Context, request *http.Reques
 	qrCode := usecase.QRService.GetQRCode(ctx, device.Id)
 
 	QRResponse := api.QRCodeRs{
-		QRCode:   qrCode.QRCode,
-		ImageUrl: utils.GetHost(request) + "/qr/show?qrCode=" + qrCode.ImageUrl,
+		QRCode:   qrCode,
+		ImageUrl: utils.GetHost(request) + "/qr/show?qrCode=" + qrCode,
 	}
 
 	return QRResponse

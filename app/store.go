@@ -27,7 +27,7 @@ var (
 // GetContainer returns a singleton instance of sqlstore.Container
 func GetContainer() *sqlstore.Container {
 	onceStore.Do(func() {
-		dbLog := waLog.Stdout("Database", "INFO", true)
+		dbLog := waLog.Stdout("Database", "DEBUG", true)
 		var err error
 		container, err = sqlstore.New(config.GetDBCon(), dbLog)
 		if err != nil {

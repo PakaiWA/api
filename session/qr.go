@@ -21,7 +21,7 @@ import (
 )
 
 func QRHandler(ctx context.Context, client *pakaiwa.Client) string {
-	qrChan, _ := client.GetQRChannel(ctx)
+	qrChan, _ := client.GetQRChannel(context.Background())
 
 	err := client.Connect()
 	if err != nil {

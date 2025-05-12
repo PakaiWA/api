@@ -12,10 +12,8 @@ package service
 
 import (
 	"context"
-
-	"github.com/pakaiwa/api/model/api"
 )
 
 type QRService interface {
-	GetQRCode(ctx context.Context, deviceId string) api.QRCodeRs
+	GetQRCode(ctx context.Context, deviceId string) string
 }
