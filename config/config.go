@@ -18,38 +18,22 @@ func GetDBCon() string {
 	return viper.GetString("db.pakaiwa.host")
 }
 
-func GetJWTKey() []byte {
-	return []byte(viper.GetString("app.jwt.sign_key"))
-}
+func GetJWTKey() []byte { return []byte(viper.GetString("app.jwt.sign_key")) }
 
-func GetAdminToken() string {
-	return viper.GetString("app.admin.token")
-}
+func GetAdminToken() string { return viper.GetString("app.admin.token") }
 
-func GetAllDevicesSQL() string {
-	return viper.GetString("app.sql.getAllDevices")
-}
+func GetAllDevicesSQL() string { return viper.GetString("app.sql.getAllDevices") }
 
-func GetDeviceByIdSQL() string {
-	return viper.GetString("app.sql.getDeviceById")
-}
+func GetDeviceByIdSQL() string { return viper.GetString("app.sql.getDeviceById") }
 
-func GetDeleteDeviceSQL() string {
-	return viper.GetString("app.sql.deleteDeviceById")
-}
+func GetDeleteDeviceSQL() string { return viper.GetString("app.sql.deleteDeviceById") }
 
-func GetAddDeviceSQL() string {
-	return viper.GetString("app.sql.addDevice")
-}
+func GetAddDeviceSQL() string { return viper.GetString("app.sql.addDevice") }
 
-func GetCountDeviceSQL() string {
-	return viper.GetString("app.sql.countDeviceById")
-}
+func GetCountDeviceSQL() string { return viper.GetString("app.sql.countDeviceById") }
 
-func GetRedisHost() string {
-	return viper.GetString("redis.host")
-}
+func GetRedisHost() string { return viper.GetString("redis.host") }
 
-func GetRedisPassword() string {
-	return viper.GetString("redis.password")
-}
+func GetRedisPassword() string { return viper.GetString("redis.password") }
+
+func GetLogLevel() string { return viper.GetString("log.level") }

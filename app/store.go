@@ -15,7 +15,6 @@ import (
 	"github.com/pakaiwa/api/config"
 	"github.com/pakaiwa/pakaiwa/store/sqlstore"
 	waLog "github.com/pakaiwa/pakaiwa/util/log"
-	"log"
 	"sync"
 )
 
