@@ -9,7 +9,7 @@
 // https://github.com/PakaiWA/api/tree/main/log
 //
 
-package log
+package app
 
 import (
 	"fmt"

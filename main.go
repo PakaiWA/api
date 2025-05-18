@@ -21,7 +21,6 @@ import (
 	"github.com/pakaiwa/api/controller"
 	"github.com/pakaiwa/api/exception"
 	"github.com/pakaiwa/api/helper"
-	logger "github.com/pakaiwa/api/log"
 	"github.com/pakaiwa/api/repository"
 	"github.com/pakaiwa/api/service"
 	"github.com/pakaiwa/api/usecase"
@@ -36,7 +35,7 @@ var log *logrus.Logger
 func init() {
 	scc2go.GetEnv(os.Getenv("SCC_URL"), os.Getenv("AUTH"), true)
 	app.NewRedisClient()
-	log = logger.Logger()
+	log = app.Logger()
 	//session.RestoreAllClient()
 }
 

@@ -12,7 +12,6 @@ package app
 
 import (
 	"context"
-	logger "github.com/pakaiwa/api/log"
 	"github.com/sirupsen/logrus"
 	"sync"
 
@@ -29,7 +28,7 @@ var (
 )
 
 func NewDBConn(ctx context.Context) *pgxpool.Pool {
-	log = logger.Logger()
+	log = Logger()
 	log.Debug("Connecting to database...")
 	onceDb.Do(func() {
 		var err error
