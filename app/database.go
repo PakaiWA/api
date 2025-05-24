@@ -12,7 +12,6 @@ package app
 
 import (
 	"context"
-	"github.com/sirupsen/logrus"
 	"sync"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -24,12 +23,10 @@ import (
 var (
 	pool   *pgxpool.Pool
 	onceDb sync.Once
-	log    *logrus.Logger
 )
 
 func NewDBConn(ctx context.Context) *pgxpool.Pool {
-	log = Logger()
-	log.Debug("Connecting to database...")
+	Log().Info("Connecting to database...")
 	onceDb.Do(func() {
 		var err error
 		pool, err = pgxpool.New(ctx, config.GetDBCon())
@@ -37,11 +34,11 @@ func NewDBConn(ctx context.Context) *pgxpool.Pool {
 	})
 
 	// Verify the connection
-	log.Debug("Verifying database connection...")
+	Log().Debug("Verifying database connection...")
 	if err := pool.Ping(ctx); err != nil {
-		log.Fatal("Ping timeout: ", err)
+		Log().Fatal("Ping timeout: ", err)
 	}
 
-	log.Debug("Connected to database...")
+	Log().Debug("Connected to database...")
 	return pool
 }

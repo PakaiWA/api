@@ -17,7 +17,6 @@ import (
 	"github.com/pakaiwa/pakaiwa"
 	"github.com/pakaiwa/pakaiwa/store"
 	waLog "github.com/pakaiwa/pakaiwa/util/log"
-	"log"
 	"time"
 )
 

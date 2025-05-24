@@ -31,7 +31,7 @@ func GetContainer() *sqlstore.Container {
 		var err error
 		container, err = sqlstore.New(context.Background(), config.GetDBCon(), dbLog)
 		if err != nil {
-			log.Fatalf("Failed to initialize sqlstore container: %v", err)
+			Log().Fatalf("Failed to initialize sqlstore container: %v", err)
 		}
 	})
 	return container

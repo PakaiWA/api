@@ -12,7 +12,6 @@ package session
 
 import (
 	"context"
-	"log"
 	"os"
 	"time"
 

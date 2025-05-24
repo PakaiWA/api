@@ -24,24 +24,23 @@ import (
 	"github.com/pakaiwa/api/repository"
 	"github.com/pakaiwa/api/service"
 	"github.com/pakaiwa/api/usecase"
-	"github.com/sirupsen/logrus"
 	"net/http"
 	"os"
 	"time"
 )
 
-var log *logrus.Logger
-
 func init() {
 	scc2go.GetEnv(os.Getenv("SCC_URL"), os.Getenv("AUTH"))
 	app.NewRedisClient()
-	log = app.Logger()
 	//session.RestoreAllClient()
 }
 
 func main() {
+	log := app.Log()
+	ctx := context.Background()
+
 	log.Debug("Starting server")
-	db := app.NewDBConn(context.Background())
+	db := app.NewDBConn(ctx)
 	router := httprouter.New()
 	log.Debug("Initializing router...")
 	validate := validator.New()

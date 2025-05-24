@@ -28,7 +28,7 @@ var (
 	instance *logrus.Logger
 )
 
-func Logger() *logrus.Logger {
+func Log() *logrus.Logger {
 	once.Do(func() {
 		instance = logrus.New()
 		instance.SetFormatter(&logrus.TextFormatter{FullTimestamp: true})
@@ -52,6 +52,11 @@ func Logger() *logrus.Logger {
 		f, _ := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 		instance.SetOutput(io.MultiWriter(os.Stdout, f))
 	})
+
+	if instance == nil {
+		panic("logger instance should not be nil")
+	}
+
 	return instance
 }
 
