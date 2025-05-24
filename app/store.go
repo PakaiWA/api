@@ -12,6 +12,7 @@
 package app
 
 import (
+	"context"
 	"github.com/pakaiwa/api/config"
 	"github.com/pakaiwa/pakaiwa/store/sqlstore"
 	waLog "github.com/pakaiwa/pakaiwa/util/log"
@@ -28,7 +29,7 @@ func GetContainer() *sqlstore.Container {
 	onceStore.Do(func() {
 		dbLog := waLog.Stdout("Database", "DEBUG", true)
 		var err error
-		container, err = sqlstore.New(config.GetDBCon(), dbLog)
+		container, err = sqlstore.New(context.Background(), config.GetDBCon(), dbLog)
 		if err != nil {
 			log.Fatalf("Failed to initialize sqlstore container: %v", err)
 		}

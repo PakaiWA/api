@@ -12,6 +12,7 @@
 package session
 
 import (
+	"context"
 	"github.com/pakaiwa/api/app"
 	"github.com/pakaiwa/pakaiwa"
 	"github.com/pakaiwa/pakaiwa/store"
@@ -23,7 +24,7 @@ import (
 func RestoreAllClient() {
 	container := app.GetContainer()
 
-	deviceStore, err := container.GetAllDevices()
+	deviceStore, err := container.GetAllDevices(context.Background())
 	if err != nil {
 		panic(err)
 	}

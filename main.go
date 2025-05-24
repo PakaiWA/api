@@ -33,7 +33,7 @@ import (
 var log *logrus.Logger
 
 func init() {
-	scc2go.GetEnv(os.Getenv("SCC_URL"), os.Getenv("AUTH"), true)
+	scc2go.GetEnv(os.Getenv("SCC_URL"), os.Getenv("AUTH"))
 	app.NewRedisClient()
 	log = app.Logger()
 	//session.RestoreAllClient()
@@ -76,8 +76,7 @@ func registerControllers(router *httprouter.Router, db *pgxpool.Pool, validate *
 	userController.RegisterRoutes(router)
 
 	// QR
-	qrDeviceRepo := repository.NewDeviceRepository() // kalau bisa reuse deviceRepo
-	qrService := service.NewQRService(qrDeviceRepo, db)
+	qrService := service.NewQRService(deviceRepo, db)
 	qrUsecase := usecase.NewQRUsecase(qrService, deviceService)
 	qrController := controller.NewQRController(qrUsecase)
 	qrController.RegisterRoutes(router)
