@@ -21,6 +21,7 @@ import (
 	"github.com/pakaiwa/api/controller"
 	"github.com/pakaiwa/api/exception"
 	"github.com/pakaiwa/api/helper"
+	"github.com/pakaiwa/api/logx"
 	"github.com/pakaiwa/api/repository"
 	"github.com/pakaiwa/api/service"
 	"github.com/pakaiwa/api/usecase"
@@ -36,15 +37,14 @@ func init() {
 }
 
 func main() {
-	log := app.Log()
 	ctx := context.Background()
 
-	log.Debug("Starting server")
+	logx.Debug("Starting server")
 	db := app.NewDBConn(ctx)
 	router := httprouter.New()
-	log.Debug("Initializing router...")
+	logx.Debug("Initializing router...")
 	validate := validator.New()
-	log.Debug("Initializing validator...")
+	logx.Debug("Initializing validator...")
 
 	registerControllers(router, db, validate)
 
@@ -56,8 +56,8 @@ func main() {
 	}
 
 	router.PanicHandler = exception.ErrorHandler
-	log.Infof("Listening on => https://%s", server.Addr)
-	log.Infof("PakaiWA running at %s", time.Now().Format(time.RFC850))
+	logx.Infof("Listening on => https://%s", server.Addr)
+	logx.Infof("PakaiWA running at %s", time.Now().Format(time.RFC850))
 	helper.PanicIfError(server.ListenAndServe())
 }
 

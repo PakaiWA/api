@@ -14,6 +14,7 @@ package session
 import (
 	"context"
 	"github.com/pakaiwa/api/app"
+	"github.com/pakaiwa/api/logx"
 	"github.com/pakaiwa/pakaiwa"
 	"github.com/pakaiwa/pakaiwa/store"
 	waLog "github.com/pakaiwa/pakaiwa/util/log"
@@ -36,7 +37,7 @@ func RestoreAllClient() {
 		go func(device *store.Device) {
 			defer func() {
 				if r := recover(); r != nil {
-					log.Printf("Recovered while restoring device %s: %v", device.ID, r)
+					logx.Printf("Recovered while restoring device %s: %v", device.ID, r)
 					failCount++
 				}
 			}()
@@ -44,7 +45,7 @@ func RestoreAllClient() {
 			client := pakaiwa.NewClient(device, clientLog)
 			client.AddEventHandler(eventHandler)
 			if err := client.Connect(); err != nil {
-				log.Printf("Error connecting device %s: %v", device.ID, err)
+				logx.Printf("Error connecting device %s: %v", device.ID, err)
 				failCount++
 				return
 			}
@@ -56,5 +57,5 @@ func RestoreAllClient() {
 
 	time.Sleep(5 * time.Second)
 
-	log.Printf("Restore complete: %d success, %d failed", successCount, failCount)
+	logx.Printf("Restore complete: %d success, %d failed", successCount, failCount)
 }

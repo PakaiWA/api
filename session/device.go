@@ -12,6 +12,7 @@ package session
 
 import (
 	"github.com/pakaiwa/api/app"
+	"github.com/pakaiwa/api/logx"
 	"sync"
 
 	"github.com/pakaiwa/pakaiwa"
@@ -22,21 +23,20 @@ var (
 	pakaiWAMap = make(map[string]*pakaiwa.Client)
 	pwaLock    = sync.Mutex{}
 	mutex      = sync.RWMutex{}
-	log        = app.Log()
 )
 
 func NewDevicePakaiWA(deviceId string) *pakaiwa.Client {
-	log.Println("Invoke NewDevicePakaiWA session")
+	logx.Println("Invoke NewDevicePakaiWA session")
 	pwaLock.Lock()
 	defer pwaLock.Unlock()
 
 	if existingClient, ok := pakaiWAMap[deviceId]; ok {
 		if existingClient.IsConnected() {
-			log.Println("Client already connected for device:", deviceId)
+			logx.Println("Client already connected for device:", deviceId)
 		}
 	}
 
-	log.Println("New Session with Device ID:", deviceId)
+	logx.Println("New Session with Device ID:", deviceId)
 
 	container := app.GetContainer()
 	store := container.NewDevice()
@@ -44,14 +44,14 @@ func NewDevicePakaiWA(deviceId string) *pakaiwa.Client {
 
 	pakaiWAMap[deviceId] = client
 
-	log.Println("New Session with Device ID:", pakaiWAMap)
+	logx.Println("New Session with Device ID:", pakaiWAMap)
 	return client
 }
 
 func RegisterClient(uuid string, client *pakaiwa.Client) {
 	mutex.Lock()
 	defer mutex.Unlock()
-	log.Println("Register client:", uuid)
+	logx.Println("Register client:", uuid)
 	pakaiWAMap[uuid] = client
 }
 

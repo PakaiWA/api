@@ -16,6 +16,7 @@ import (
 	"github.com/pakaiwa/api/config"
 	"github.com/sirupsen/logrus"
 	"io"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -31,7 +32,11 @@ var (
 func Log() *logrus.Logger {
 	once.Do(func() {
 		instance = logrus.New()
-		instance.SetFormatter(&logrus.TextFormatter{FullTimestamp: true})
+		//instance.SetFormatter(&logrus.TextFormatter{FullTimestamp: true})
+		instance.SetFormatter(&logrus.JSONFormatter{
+			TimestampFormat: time.RFC3339,
+		})
+
 		instance.SetLevel(getLogLevel())
 
 		logDir := "logs"
@@ -65,6 +70,6 @@ func getLogLevel() logrus.Level {
 	if err != nil {
 		level = logrus.InfoLevel
 	}
-	fmt.Println("Log level set to:", level)
+	log.Println("Log level set to:", level)
 	return level
 }
