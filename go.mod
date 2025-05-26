@@ -3,7 +3,7 @@ module github.com/pakaiwa/api
 go 1.24.2
 
 require (
-	github.com/KAnggara75/scc2go v0.0.1
+	github.com/KAnggara75/scc2go v0.1.3
 	github.com/go-playground/validator/v10 v10.26.0
 	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/google/uuid v1.6.0
@@ -37,5 +37,5 @@ require (
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/text v0.25.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	resty.dev/v3 v3.0.0-beta.2 // indirect
+	resty.dev/v3 v3.0.0-beta.3 // indirect
 )
