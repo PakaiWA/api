@@ -26,17 +26,17 @@ var (
 )
 
 func NewDevicePakaiWA(deviceId string) *pakaiwa.Client {
-	logx.Println("Invoke NewDevicePakaiWA session")
+	logx.Debug("Invoke NewDevicePakaiWA session")
 	pwaLock.Lock()
 	defer pwaLock.Unlock()
 
 	if existingClient, ok := pakaiWAMap[deviceId]; ok {
 		if existingClient.IsConnected() {
-			logx.Println("Client already connected for device:", deviceId)
+			logx.Debugf("Client already connected for device: %s", deviceId)
 		}
 	}
 
-	logx.Println("New Session with Device ID:", deviceId)
+	logx.Debugf("New Session with Device ID: %s", deviceId)
 
 	container := app.GetContainer()
 	store := container.NewDevice()
@@ -44,14 +44,14 @@ func NewDevicePakaiWA(deviceId string) *pakaiwa.Client {
 
 	pakaiWAMap[deviceId] = client
 
-	logx.Println("New Session with Device ID:", pakaiWAMap)
+	logx.Debugf("New Session with Device ID: %v", pakaiWAMap)
 	return client
 }
 
 func RegisterClient(uuid string, client *pakaiwa.Client) {
 	mutex.Lock()
 	defer mutex.Unlock()
-	logx.Println("Register client:", uuid)
+	logx.Debugf("Register client: %s", uuid)
 	pakaiWAMap[uuid] = client
 }
 

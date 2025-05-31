@@ -13,41 +13,57 @@ package logx
 
 import (
 	"github.com/pakaiwa/api/app"
-	"github.com/sirupsen/logrus"
+	"github.com/rs/zerolog"
 )
 
-func Log() *logrus.Logger {
-	return app.Log()
+func Debug(msg string, fields ...func(e *zerolog.Event) *zerolog.Event) {
+	e := app.NewLogger().Debug()
+	for _, f := range fields {
+		e = f(e)
+	}
+	e.Msg(msg)
 }
 
-func Println(args ...interface{}) {
-	app.Log().Println(args...)
+func Debugf(format string, args ...interface{}) {
+	app.NewLogger().Debug().Msgf(format, args...)
 }
 
-func Debug(args ...interface{}) {
-	app.Log().Debug(args...)
-
-}
-func Info(args ...interface{}) {
-	app.Log().Info(args...)
-}
-
-func Warn(args ...interface{}) {
-	app.Log().Warn(args...)
-}
-
-func Error(args ...interface{}) {
-	app.Log().Error(args...)
-}
-
-func Fatal(args ...interface{}) {
-	app.Log().Fatal(args...)
-}
-
-func Printf(format string, args ...interface{}) {
-	app.Log().Printf(format, args...)
+func Info(msg string, fields ...func(e *zerolog.Event) *zerolog.Event) {
+	e := app.NewLogger().Info()
+	for _, f := range fields {
+		e = f(e)
+	}
+	e.Msg(msg)
 }
 
 func Infof(format string, args ...interface{}) {
-	app.Log().Infof(format, args...)
+	app.NewLogger().Info().Msgf(format, args...)
+}
+
+func Warn(msg string, fields ...func(e *zerolog.Event) *zerolog.Event) {
+	e := app.NewLogger().Warn()
+	for _, f := range fields {
+		e = f(e)
+	}
+	e.Msg(msg)
+}
+
+func Error(msg string, fields ...func(e *zerolog.Event) *zerolog.Event) {
+	e := app.NewLogger().Error()
+	for _, f := range fields {
+		e = f(e)
+	}
+	e.Msg(msg)
+}
+
+func Errorf(format string, args ...interface{}) {
+	app.NewLogger().Error().Msgf(format, args...)
+}
+
+func Fatal(msg string, fields ...func(e *zerolog.Event) *zerolog.Event) {
+	e := app.NewLogger().Fatal()
+	for _, f := range fields {
+		e = f(e)
+	}
+	e.Msg(msg)
 }

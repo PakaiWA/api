@@ -19,6 +19,7 @@ import (
 	"github.com/pakaiwa/api/config"
 	"github.com/pakaiwa/api/logx"
 	"github.com/pakaiwa/api/model/api"
+	"github.com/pakaiwa/api/utils"
 	"github.com/redis/go-redis/v9"
 	"net/http"
 	"strconv"
@@ -38,6 +39,13 @@ func AuthMiddleware(next httprouter.Handle) httprouter.Handle {
 	}
 
 	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+		traceID := r.Header.Get("ax-request-id")
+		if traceID == "" {
+			traceID = utils.GenerateUUID()
+		}
+
+		ctx := context.WithValue(r.Context(), "trace_id", traceID)
+
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
 			api.WriteToResponseBody(w, res.Code, res)
@@ -57,16 +65,16 @@ func AuthMiddleware(next httprouter.Handle) httprouter.Handle {
 
 		exp, err := app.RedisClient.Get(context.Background(), claims.Email).Result()
 		if errors.Is(err, redis.Nil) {
-			logx.Println("Token is valid")
+			logx.Info("Token is valid")
 		} else if err != nil {
-			logx.Printf("Error when retrive data from Redis: %v", err)
+			logx.Infof("Error when retrieve data from Redis: %v", err)
 			res.Code = http.StatusInternalServerError
 			res.Status = "INTERNAL_SERVER_ERROR"
 			api.WriteToResponseBody(w, res.Code, res)
 			return
 		} else {
 			if logoutOn, _ := strconv.Atoi(exp); logoutOn > claims.Iat {
-				logx.Println("Token is invalid")
+				logx.Info("Token is invalid")
 				res.Code = http.StatusUnauthorized
 				res.Status = "UNAUTHORIZED"
 				api.WriteToResponseBody(w, res.Code, res)
@@ -75,7 +83,7 @@ func AuthMiddleware(next httprouter.Handle) httprouter.Handle {
 		}
 
 		// save claims to context
-		ctx := context.WithValue(r.Context(), "userEmail", claims.Email)
+		ctx = context.WithValue(ctx, "userEmail", claims.Email)
 		next(w, r.WithContext(ctx), ps)
 	}
 }

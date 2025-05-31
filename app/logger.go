@@ -14,9 +14,8 @@ package app
 import (
 	"fmt"
 	"github.com/pakaiwa/api/config"
-	"github.com/sirupsen/logrus"
+	"github.com/rs/zerolog"
 	"io"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -25,20 +24,12 @@ import (
 )
 
 var (
-	once     sync.Once
-	instance *logrus.Logger
+	once   sync.Once
+	logger zerolog.Logger
 )
 
-func Log() *logrus.Logger {
+func NewLogger() *zerolog.Logger {
 	once.Do(func() {
-		instance = logrus.New()
-		//instance.SetFormatter(&logrus.TextFormatter{FullTimestamp: true})
-		instance.SetFormatter(&logrus.JSONFormatter{
-			TimestampFormat: time.RFC3339,
-		})
-
-		instance.SetLevel(getLogLevel())
-
 		logDir := "logs"
 		_ = os.MkdirAll(logDir, os.ModePerm)
 
@@ -54,22 +45,30 @@ func Log() *logrus.Logger {
 			idx++
 		}
 
-		f, _ := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
-		instance.SetOutput(io.MultiWriter(os.Stdout, f))
+		f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+		if err != nil {
+			panic(fmt.Sprintf("failed to open log file: %v", err))
+		}
+
+		multi := io.MultiWriter(os.Stdout, f)
+		zerolog.TimeFieldFormat = time.RFC3339
+		level := getLogLevel()
+		logger = zerolog.New(multi).
+			Level(level).
+			With().
+			Timestamp().
+			Logger()
+
+		logger.Info().Msgf("Log level set to: %s", level)
 	})
 
-	if instance == nil {
-		panic("logger instance should not be nil")
-	}
-
-	return instance
+	return &logger
 }
 
-func getLogLevel() logrus.Level {
-	level, err := logrus.ParseLevel(strings.ToLower(config.GetLogLevel()))
+func getLogLevel() zerolog.Level {
+	level, err := zerolog.ParseLevel(strings.ToLower(config.GetLogLevel()))
 	if err != nil {
-		level = logrus.InfoLevel
+		level = zerolog.InfoLevel
 	}
-	log.Println("Log level set to:", level)
 	return level
 }

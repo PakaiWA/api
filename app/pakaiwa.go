@@ -43,7 +43,6 @@ func NewPakaiWA() {
 		}
 		for evt := range qrChan {
 			if evt.Event == "code" {
-				//qrterminal.Generate(evt.Code, qrterminal.L, os.Stdout)
 				fmt.Println("QR code:", evt.Code)
 				qrterminal.GenerateHalfBlock(evt.Code, qrterminal.L, os.Stdout)
 			} else {

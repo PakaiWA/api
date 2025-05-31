@@ -25,7 +25,7 @@ func QRHandler(ctx context.Context, client *pakaiwa.Client) string {
 
 	err := client.Connect()
 	if err != nil {
-		logx.Println("Error connecting client:", err)
+		logx.Errorf("Error connecting client: %v", err)
 		return ""
 	}
 
@@ -38,11 +38,11 @@ func QRHandler(ctx context.Context, client *pakaiwa.Client) string {
 			case "code":
 				qrCodeChan <- evt.Code
 			case "success":
-				logx.Println("Client authenticated successfully")
+				logx.Debug("Client authenticated successfully")
 				authenticated <- struct{}{}
 				return
 			default:
-				logx.Println("QR event:", evt.Event)
+				logx.Debugf("QR event: %s", evt.Event)
 			}
 		}
 	}()
@@ -50,10 +50,10 @@ func QRHandler(ctx context.Context, client *pakaiwa.Client) string {
 	qrCode := ""
 	select {
 	case qrCode = <-qrCodeChan:
-		logx.Println("QR code received:", qrCode)
+		logx.Debugf("QR code received: %s", qrCode)
 		qrterminal.GenerateHalfBlock(qrCode, qrterminal.L, os.Stdout)
 	case <-time.After(10 * time.Second):
-		logx.Println("Failed to receive QR code")
+		logx.Warn("Failed to receive QR code")
 		client.Disconnect()
 		return ""
 	}
@@ -61,9 +61,9 @@ func QRHandler(ctx context.Context, client *pakaiwa.Client) string {
 	go func() {
 		select {
 		case <-authenticated:
-			logx.Println("user QR code authenticated")
+			logx.Info("user QR code authenticated")
 		case <-time.After(30 * time.Second):
-			logx.Println("QR code not scanned within 30s, disconnecting client...")
+			logx.Info("QR code not scanned within 30s, disconnecting client...")
 			client.Disconnect()
 		}
 	}()

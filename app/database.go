@@ -26,19 +26,18 @@ var (
 )
 
 func NewDBConn(ctx context.Context) *pgxpool.Pool {
-	Log().Info("Connecting to database...")
+	NewLogger().Info().Msgf("Connecting to database...")
+
 	onceDb.Do(func() {
 		var err error
 		pool, err = pgxpool.New(ctx, config.GetDBCon())
 		helper.PanicIfError(err)
 	})
 
-	// Verify the connection
-	Log().Debug("Verifying database connection...")
-	if err := pool.Ping(ctx); err != nil {
-		Log().Fatal("Ping timeout: ", err)
+	if pool == nil {
+		NewLogger().Error().Msgf("Database pool is nil")
 	}
 
-	Log().Debug("Connected to database...")
+	NewLogger().Info().Msg("Connected to database...")
 	return pool
 }
