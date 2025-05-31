@@ -12,10 +12,10 @@ package app
 
 import (
 	"context"
-	"sync"
-
 	"github.com/jackc/pgx/v5/pgxpool"
-	_ "github.com/jackc/pgx/v5/stdlib"
+	"sync"
+	"time"
+
 	"github.com/pakaiwa/api/config"
 	"github.com/pakaiwa/api/helper"
 )
@@ -29,9 +29,25 @@ func NewDBConn(ctx context.Context) *pgxpool.Pool {
 	NewLogger().Info().Msgf("Connecting to database...")
 
 	onceDb.Do(func() {
-		var err error
-		pool, err = pgxpool.New(ctx, config.GetDBCon())
+		cfg, err := pgxpool.ParseConfig(config.GetDBCon())
 		helper.PanicIfError(err)
+
+		cfg.MinConns = 1
+		cfg.MaxConns = 10
+		cfg.HealthCheckPeriod = time.Minute
+
+		start := time.Now()
+		pool, err = pgxpool.NewWithConfig(ctx, cfg)
+		helper.PanicIfError(err)
+		NewLogger().Debug().Msgf("pgxpool.NewWithConfig took %s", time.Since(start))
+
+		//ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+		//defer cancel()
+		NewLogger().Info().Msg("Pinging database...")
+		if err := pool.Ping(ctx); err != nil {
+			NewLogger().Error().Msgf("Ping timeout: %v", err)
+		}
+		NewLogger().Info().Msg("Pinging done...")
 	})
 
 	if pool == nil {
