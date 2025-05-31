@@ -45,15 +45,15 @@ func NewLogger() *zerolog.Logger {
 			idx++
 		}
 
-		f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+		outFile, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 		if err != nil {
 			panic(fmt.Sprintf("failed to open log file: %v", err))
 		}
 
-		multi := io.MultiWriter(os.Stdout, f)
+		writer := io.MultiWriter(os.Stdout, outFile)
 		zerolog.TimeFieldFormat = time.RFC3339
 		level := getLogLevel()
-		logger = zerolog.New(multi).
+		logger = zerolog.New(writer).
 			Level(level).
 			With().
 			Timestamp().

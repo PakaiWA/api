@@ -29,7 +29,7 @@ func GetContainer() *sqlstore.Container {
 	onceStore.Do(func() {
 		dbLog := waLog.Stdout("Database", "DEBUG", true)
 		var err error
-		container, err = sqlstore.New(context.Background(), config.GetDBCon(), dbLog)
+		container, err = sqlstore.New(context.Background(), config.GetDBConn(), dbLog)
 		if err != nil {
 			NewLogger().Fatal().Msgf("Failed to initialize sqlstore container: %v", err)
 		}

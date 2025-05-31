@@ -12,10 +12,29 @@ package config
 
 import (
 	"github.com/spf13/viper"
+	"time"
 )
 
-func GetDBCon() string {
+func GetDBConn() string {
 	return viper.GetString("db.pakaiwa.host")
+}
+
+func GetDBMinConn() int32 {
+	return viper.GetInt32("db.pakaiwa.MinConns")
+}
+
+func GetDBMaxConn() int32 {
+	return viper.GetInt32("db.pakaiwa.MaxConns")
+}
+
+func GetDBHealthCheckPeriod() time.Duration {
+	if viper.IsSet("db.pakaiwa.HealthCheckPeriod") {
+		val := viper.GetDuration("db.pakaiwa.HealthCheckPeriod")
+		if val > 0 {
+			return val
+		}
+	}
+	return 1 * time.Minute
 }
 
 func GetJWTKey() []byte { return []byte(viper.GetString("app.jwt.sign_key")) }
