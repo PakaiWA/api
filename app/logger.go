@@ -51,7 +51,7 @@ func NewLogger() *zerolog.Logger {
 		}
 
 		writer := io.MultiWriter(os.Stdout, outFile)
-		zerolog.TimeFieldFormat = time.RFC3339
+		zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 		level := getLogLevel()
 		logger = zerolog.New(writer).
 			Level(level).
