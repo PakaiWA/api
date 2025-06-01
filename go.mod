@@ -11,8 +11,8 @@ require (
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/mdp/qrterminal/v3 v3.2.1
 	github.com/pakaiwa/pakaiwa v0.0.3
-	github.com/redis/go-redis/v9 v9.8.0
-	github.com/sirupsen/logrus v1.9.3
+	github.com/redis/go-redis/v9 v9.9.0
+	github.com/rs/zerolog v1.34.0
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
 	github.com/spf13/viper v1.20.1
 	golang.org/x/crypto v0.38.0
@@ -36,7 +36,6 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
 	github.com/petermattis/goid v0.0.0-20250508124226-395b08cebbdb // indirect
-	github.com/rs/zerolog v1.34.0 // indirect
 	github.com/sagikazarmark/locafero v0.7.0 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/afero v1.12.0 // indirect

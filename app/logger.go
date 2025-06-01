@@ -76,6 +76,8 @@ func NewLogger() *zerolog.Logger {
 			zerolog.MessageFieldName,
 		}
 
+		consoleWriter.FieldsExclude = []string{"trace_id"}
+
 		if logFileFailed {
 			logger.Warn().Str("trace_id", config.Get40Space()).Msg("Logging to the file is not successful, the log will only appear on the console.")
 			finalWriter = consoleWriter
