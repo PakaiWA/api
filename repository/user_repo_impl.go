@@ -13,6 +13,7 @@ package repository
 import (
 	"context"
 	"fmt"
+	"github.com/pakaiwa/api/logx"
 	"strings"
 
 	"github.com/jackc/pgx/v5"
@@ -28,13 +29,13 @@ func NewUserRepo() UserRepo {
 }
 
 func (repo UserRepoImpl) CreateUser(ctx context.Context, tx pgx.Tx, user entity.User) entity.User {
-	fmt.Println("Invoke CreateUser Repository")
+	logx.DebugCtx(ctx, "Invoke CreateUser Repository")
 
 	uuid := utils.GenerateUUID()
 	userEmail := strings.ToLower(user.Email)
 
 	SQL := "insert into management.users (uuid, email, password) values ($1, $2, $3)"
-	fmt.Println(SQL, uuid, userEmail, "[REDACTED]")
+	logx.DebugfCtx(ctx, SQL, uuid, userEmail, "[REDACTED]")
 	_, err := tx.Exec(ctx, SQL, uuid, userEmail, user.Password)
 	if err != nil {
 		helper.PanicIfError(err)
@@ -43,19 +44,19 @@ func (repo UserRepoImpl) CreateUser(ctx context.Context, tx pgx.Tx, user entity.
 	helper.PanicIfError(err)
 	user.Uuid = uuid
 	user.Password = "" // Clear sensitive data
-	fmt.Printf("Success create user with UUID: %s and Email: %s\n", user.Uuid, userEmail)
+	logx.DebugfCtx(ctx, "Success create user with UUID: %s and Email: %s\n", user.Uuid, userEmail)
 	return user
 }
 
 func (repo UserRepoImpl) EmailExist(ctx context.Context, tx pgx.Tx, email string) (bool, error) {
-	fmt.Println("Invoke FindByEmail Repository")
+	logx.DebugCtx(ctx, "Invoke FindByEmail Repository")
 	var count int
 	userEmail := strings.ToLower(email)
 
 	SQL := "select count(*) from management.users where email = $1"
 	err := tx.QueryRow(ctx, SQL, userEmail).Scan(&count)
 	if err != nil {
-		fmt.Println("Error executing query:", err)
+		logx.DebugfCtx(ctx, "Error executing query:", err)
 		return true, err
 	}
 
@@ -63,7 +64,7 @@ func (repo UserRepoImpl) EmailExist(ctx context.Context, tx pgx.Tx, email string
 }
 
 func (repo UserRepoImpl) Login(ctx context.Context, tx pgx.Tx, email, pass string) (entity.User, error) {
-	fmt.Println("Invoke Login Repository")
+	logx.DebugCtx(ctx, "Invoke Login Repository")
 	SQL := "SELECT uuid, email, password FROM management.users WHERE email = $1"
 
 	user := entity.User{}
@@ -71,16 +72,16 @@ func (repo UserRepoImpl) Login(ctx context.Context, tx pgx.Tx, email, pass strin
 
 	err := tx.QueryRow(ctx, SQL, userEmail).Scan(&user.Uuid, &user.Email, &user.Password)
 	if err != nil {
-		fmt.Println("Error executing query:", err)
+		logx.DebugfCtx(ctx, "Error executing query:", err)
 		return user, err
 	}
 
 	if !utils.CheckPasswordHash(pass, user.Password) {
-		fmt.Println("Invalid password")
+		logx.DebugfCtx(ctx, "Invalid password")
 		return user, fmt.Errorf("invalid password")
 	}
 
 	user.Password = "" // Clear sensitive data
-	fmt.Printf("Success login user with UUID: %s and Email: %s\n", user.Uuid, userEmail)
+	logx.DebugfCtx(ctx, "Success login user with UUID: %s and Email: %s\n", user.Uuid, userEmail)
 	return user, nil
 }

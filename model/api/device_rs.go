@@ -11,7 +11,7 @@
 package api
 
 import (
-	"fmt"
+	"github.com/pakaiwa/api/logx"
 	"time"
 
 	"github.com/pakaiwa/api/model/entity"
@@ -28,7 +28,7 @@ type DeviceRs struct {
 }
 
 func ToDeviceResponse(device entity.Device) DeviceRs {
-	fmt.Println("Invoke ToDeviceResponse")
+	logx.Debug("Invoke ToDeviceResponse")
 	return DeviceRs{
 		Id:                 device.Name,
 		Status:             device.Status,
@@ -41,7 +41,7 @@ func ToDeviceResponse(device entity.Device) DeviceRs {
 }
 
 func ToDeviceResponses(devices []entity.Device) []DeviceRs {
-	fmt.Println("Invoke ToDeviceResponses")
+	logx.Debug("Invoke ToDeviceResponses")
 	//goland:noinspection ALL
 	deviceResponses := []DeviceRs{}
 	for _, device := range devices {

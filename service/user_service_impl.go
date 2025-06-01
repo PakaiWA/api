@@ -12,7 +12,7 @@ package service
 
 import (
 	"context"
-	"fmt"
+	"github.com/pakaiwa/api/logx"
 	"net/http"
 	"time"
 
@@ -42,8 +42,9 @@ func NewUserService(repo repository.UserRepo, db *pgxpool.Pool, validate *valida
 }
 
 func (service UserServiceImpl) Logout(ctx context.Context) {
-	fmt.Println("Invoke Logout Service")
+	logx.DebugCtx(ctx, "Invoke Logout Service")
 	tx, conn, err := helper.DBTransaction(ctx, service.DB)
+	logx.DebugCtx(ctx, "Invoke DBTransaction")
 	helper.PanicIfError(err)
 	defer conn.Release()
 	defer helper.CommitOrRollback(ctx, tx)
@@ -52,7 +53,7 @@ func (service UserServiceImpl) Logout(ctx context.Context) {
 
 	exist, err := service.Repo.EmailExist(ctx, tx, email)
 	if err != nil {
-		fmt.Println("Error checking email existence:", err)
+		logx.ErrorfCtx(ctx, "Error checking email existence:", err)
 		helper.PanicIfError(err)
 	}
 
@@ -64,18 +65,19 @@ func (service UserServiceImpl) Logout(ctx context.Context) {
 }
 
 func (service UserServiceImpl) Login(ctx context.Context, req api.UserRq) api.UserRs {
-	fmt.Println("Invoke Login Service")
+	logx.DebugCtx(ctx, "Invoke Login Service")
 	err := service.Validate.Struct(req)
 	helper.PanicIfError(err)
 
 	tx, conn, err := helper.DBTransaction(ctx, service.DB)
+	logx.DebugCtx(ctx, "Invoke DBTransaction")
 	helper.PanicIfError(err)
 	defer conn.Release()
 	defer helper.CommitOrRollback(ctx, tx)
 
 	user, err := service.Repo.Login(ctx, tx, req.Email, req.Password)
 	if err != nil {
-		fmt.Println("Error logging in:", err)
+		logx.ErrorfCtx(ctx, "Error logging in:", err)
 		panic(exception.NewHTTPError(http.StatusUnauthorized, "Wrong email or password"))
 	}
 
@@ -83,18 +85,19 @@ func (service UserServiceImpl) Login(ctx context.Context, req api.UserRq) api.Us
 }
 
 func (service UserServiceImpl) CreateUser(ctx context.Context, req api.UserRq) api.UserRs {
-	fmt.Println("Invoke CreateUser Service")
+	logx.DebugCtx(ctx, "Invoke CreateUser Service")
 	err := service.Validate.Struct(req)
 	helper.PanicIfError(err)
 
 	tx, conn, err := helper.DBTransaction(ctx, service.DB)
+	logx.DebugCtx(ctx, "Invoke DBTransaction")
 	helper.PanicIfError(err)
 	defer conn.Release()
 	defer helper.CommitOrRollback(ctx, tx)
 
 	exist, err := service.Repo.EmailExist(ctx, tx, req.Email)
 	if err != nil {
-		fmt.Println("Error checking email existence:", err)
+		logx.ErrorfCtx(ctx, "Error checking email existence:", err)
 		helper.PanicIfError(err)
 	}
 

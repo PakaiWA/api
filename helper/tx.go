@@ -12,14 +12,11 @@ package helper
 
 import (
 	"context"
-	"fmt"
-
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func DBTransaction(ctx context.Context, DB *pgxpool.Pool) (pgx.Tx, *pgxpool.Conn, error) {
-	fmt.Println("Invoke DBTransaction")
 	conn, err := DB.Acquire(ctx)
 	if err != nil {
 		return nil, nil, err

@@ -12,7 +12,7 @@ package service
 
 import (
 	"context"
-	"fmt"
+	"github.com/pakaiwa/api/logx"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
@@ -39,9 +39,10 @@ func NewDeviceService(deviceRepository repository.DeviceRepository, DB *pgxpool.
 }
 
 func (service *DeviceServiceImpl) GetDeviceById(ctx context.Context, id string) (api.DeviceRs, error) {
-	fmt.Println("Invoke GetDeviceById Service")
+	logx.DebugCtx(ctx, "Invoke GetDeviceById Service")
 
 	tx, conn, err := helper.DBTransaction(ctx, service.DB)
+	logx.DebugCtx(ctx, "Invoke DBTransaction")
 	helper.PanicIfError(err)
 	defer conn.Release()
 	defer helper.CommitOrRollback(ctx, tx)
@@ -55,9 +56,10 @@ func (service *DeviceServiceImpl) GetDeviceById(ctx context.Context, id string) 
 }
 
 func (service *DeviceServiceImpl) DeleteDevice(ctx context.Context, id string) {
-	fmt.Println("Invoke DeleteDevice Service")
+	logx.DebugCtx(ctx, "Invoke DeleteDevice Service")
 
 	tx, conn, err := helper.DBTransaction(ctx, service.DB)
+	logx.DebugCtx(ctx, "Invoke DBTransaction")
 	helper.PanicIfError(err)
 	defer conn.Release()
 	defer helper.CommitOrRollback(ctx, tx)
@@ -71,9 +73,10 @@ func (service *DeviceServiceImpl) DeleteDevice(ctx context.Context, id string) {
 }
 
 func (service *DeviceServiceImpl) GetAllDevices(ctx context.Context) []api.DeviceRs {
-	fmt.Println("Invoke GetAllDevices Service")
+	logx.DebugCtx(ctx, "Invoke GetAllDevices Service")
 
 	tx, conn, err := helper.DBTransaction(ctx, service.DB)
+	logx.DebugCtx(ctx, "Invoke DBTransaction")
 	helper.PanicIfError(err)
 	defer conn.Release()
 	defer helper.CommitOrRollback(ctx, tx)
@@ -84,9 +87,10 @@ func (service *DeviceServiceImpl) GetAllDevices(ctx context.Context) []api.Devic
 }
 
 func (service *DeviceServiceImpl) GetDevice(ctx context.Context, id string) api.DeviceRs {
-	fmt.Println("Invoke GetDevice Service")
+	logx.DebugCtx(ctx, "Invoke GetDevice Service")
 
 	tx, conn, err := helper.DBTransaction(ctx, service.DB)
+	logx.DebugCtx(ctx, "Invoke DBTransaction")
 	helper.PanicIfError(err)
 	defer conn.Release()
 	defer helper.CommitOrRollback(ctx, tx)
@@ -100,11 +104,12 @@ func (service *DeviceServiceImpl) GetDevice(ctx context.Context, id string) api.
 }
 
 func (service *DeviceServiceImpl) AddDevice(ctx context.Context, req api.DeviceAddRq) api.DeviceRs {
-	fmt.Println("Invoke AddDevice Service")
+	logx.DebugCtx(ctx, "Invoke AddDevice Service")
 	err := service.Validate.Struct(req)
 	helper.PanicIfError(err)
 
 	tx, conn, err := helper.DBTransaction(ctx, service.DB)
+	logx.DebugCtx(ctx, "Invoke DBTransaction")
 	helper.PanicIfError(err)
 	defer conn.Release()
 	defer helper.CommitOrRollback(ctx, tx)

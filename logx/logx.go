@@ -17,54 +17,87 @@ import (
 	"github.com/rs/zerolog"
 )
 
-func Debug(msg string, fields ...func(e *zerolog.Event) *zerolog.Event) {
-	e := app.NewLogger().Debug()
-	for _, f := range fields {
-		e = f(e)
+func getTraceIDFromContext(ctx context.Context) string {
+	if ctx == nil {
+		return ""
 	}
-	e.Msg(msg)
+	traceIDValue := ctx.Value("trace_id")
+	if traceIDValue != nil {
+		if traceID, ok := traceIDValue.(string); ok {
+			return traceID
+		}
+	}
+	return ""
+}
+
+func withTraceID(ctx context.Context, event *zerolog.Event) *zerolog.Event {
+	traceID := getTraceIDFromContext(ctx)
+	if traceID != "" {
+		return event.Str("trace_id", traceID)
+	}
+	return event
+}
+
+func Debug(msg string) {
+	app.NewLogger().Debug().Msg(msg)
 }
 
 func Debugf(format string, args ...interface{}) {
 	app.NewLogger().Debug().Msgf(format, args...)
 }
 
-func Info(ctx context.Context, msg string, fields ...func(e *zerolog.Event) *zerolog.Event) {
-	e := app.NewLogger().Info().Str("trace_id", ctx.Value("trace_id").(string))
-	for _, f := range fields {
-		e = f(e)
-	}
-	e.Msg(msg)
+func DebugCtx(ctx context.Context, msg string) {
+	withTraceID(ctx, app.NewLogger().Debug()).Msg(msg)
+}
+
+func DebugfCtx(ctx context.Context, format string, args ...interface{}) {
+	withTraceID(ctx, app.NewLogger().Debug()).Msgf(format, args...)
+}
+
+func Info(msg string) {
+	app.NewLogger().Info().Msg(msg)
 }
 
 func Infof(format string, args ...interface{}) {
 	app.NewLogger().Info().Msgf(format, args...)
 }
 
-func Warn(msg string, fields ...func(e *zerolog.Event) *zerolog.Event) {
-	e := app.NewLogger().Warn()
-	for _, f := range fields {
-		e = f(e)
-	}
-	e.Msg(msg)
+func InfoCtx(ctx context.Context, msg string) {
+	withTraceID(ctx, app.NewLogger().Info()).Msg(msg)
 }
 
-func Error(msg string, fields ...func(e *zerolog.Event) *zerolog.Event) {
-	e := app.NewLogger().Error()
-	for _, f := range fields {
-		e = f(e)
-	}
-	e.Msg(msg)
+func InfofCtx(ctx context.Context, format string, args ...interface{}) {
+	withTraceID(ctx, app.NewLogger().Info()).Msgf(format, args...)
+}
+
+func Warn(msg string) {
+	app.NewLogger().Warn().Msg(msg)
+}
+
+func Warnf(format string, args ...interface{}) {
+	app.NewLogger().Warn().Msgf(format, args...)
+}
+
+func WarnCtx(ctx context.Context, msg string) {
+	withTraceID(ctx, app.NewLogger().Warn()).Msg(msg)
+}
+
+func WarnfCtx(ctx context.Context, format string, args ...interface{}) {
+	withTraceID(ctx, app.NewLogger().Warn()).Msgf(format, args...)
+}
+
+func Error(msg string) {
+	app.NewLogger().Error().Msg(msg)
 }
 
 func Errorf(format string, args ...interface{}) {
 	app.NewLogger().Error().Msgf(format, args...)
 }
 
-func Fatal(msg string, fields ...func(e *zerolog.Event) *zerolog.Event) {
-	e := app.NewLogger().Fatal()
-	for _, f := range fields {
-		e = f(e)
-	}
-	e.Msg(msg)
+func ErrorCtx(ctx context.Context, msg string) {
+	withTraceID(ctx, app.NewLogger().Error()).Msg(msg)
+}
+
+func ErrorfCtx(ctx context.Context, format string, args ...interface{}) {
+	withTraceID(ctx, app.NewLogger().Error()).Msgf(format, args...)
 }

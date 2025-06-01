@@ -61,9 +61,9 @@ func QRHandler(ctx context.Context, client *pakaiwa.Client) string {
 	go func() {
 		select {
 		case <-authenticated:
-			logx.Info(ctx, "user QR code authenticated")
+			logx.InfoCtx(ctx, "user QR code authenticated")
 		case <-time.After(30 * time.Second):
-			logx.Info(ctx, "QR code not scanned within 30s, disconnecting client...")
+			logx.InfoCtx(ctx, "QR code not scanned within 30s, disconnecting client...")
 			client.Disconnect()
 		}
 	}()

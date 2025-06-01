@@ -11,7 +11,7 @@
 package api
 
 import (
-	"fmt"
+	"github.com/pakaiwa/api/logx"
 
 	"github.com/pakaiwa/api/helper"
 	"github.com/pakaiwa/api/model/entity"
@@ -24,7 +24,7 @@ type UserRs struct {
 }
 
 func ToUserResponse(user entity.User) UserRs {
-	fmt.Println("Invoke ToUserResponse")
+	logx.Debug("Invoke ToUserResponse")
 
 	token, err := helper.GenerateJWT(user)
 	if err != nil {

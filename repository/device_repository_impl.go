@@ -13,7 +13,7 @@ package repository
 import (
 	"context"
 	"errors"
-	"fmt"
+	"github.com/pakaiwa/api/logx"
 	"strings"
 
 	"github.com/jackc/pgx/v5"
@@ -30,7 +30,7 @@ func NewDeviceRepository() DeviceRepository {
 }
 
 func (repository *DeviceRepositoryImpl) AddDevice(ctx context.Context, tx pgx.Tx, device entity.Device) (entity.Device, error) {
-	fmt.Println("Invoke AddDevice Repository")
+	logx.DebugCtx(ctx, "Invoke AddDevice Repository")
 
 	var count int
 	CountDeviceSQL := config.GetCountDeviceSQL()
@@ -45,7 +45,7 @@ func (repository *DeviceRepositoryImpl) AddDevice(ctx context.Context, tx pgx.Tx
 
 	deviceId := utils.GenerateUUID()
 	AddDeviceSQL := config.GetAddDeviceSQL()
-	fmt.Println(AddDeviceSQL, deviceId, ctx.Value("userEmail").(string), strings.ToLower(device.Name))
+	logx.DebugfCtx(ctx, AddDeviceSQL, deviceId, ctx.Value("userEmail").(string), strings.ToLower(device.Name))
 
 	err = tx.QueryRow(ctx, AddDeviceSQL, deviceId, ctx.Value("userEmail").(string), strings.ToLower(device.Name)).
 		Scan(&device.Name, &device.Status, &device.CreatedAt)
@@ -53,12 +53,12 @@ func (repository *DeviceRepositoryImpl) AddDevice(ctx context.Context, tx pgx.Tx
 		return device, err
 	}
 
-	fmt.Println("Success insert device", device)
+	logx.DebugfCtx(ctx, "Success insert device", device)
 	return device, nil
 }
 
 func (repository *DeviceRepositoryImpl) DeleteDevice(ctx context.Context, tx pgx.Tx, device entity.Device) {
-	fmt.Println("Invoke DeleteDevice Repository")
+	logx.DebugCtx(ctx, "Invoke DeleteDevice Repository")
 
 	SQL := config.GetDeleteDeviceSQL()
 	_, err := tx.Exec(ctx, SQL, strings.ToLower(device.Name), ctx.Value("userEmail").(string))
@@ -66,7 +66,7 @@ func (repository *DeviceRepositoryImpl) DeleteDevice(ctx context.Context, tx pgx
 }
 
 func (repository *DeviceRepositoryImpl) FindDeviceById(ctx context.Context, tx pgx.Tx, deviceId string) (entity.Device, error) {
-	fmt.Println("Invoke FindDeviceById Repository")
+	logx.DebugCtx(ctx, "Invoke FindDeviceById Repository")
 
 	SQL := config.GetDeviceByIdSQL()
 	rows, err := tx.Query(ctx, SQL, strings.ToLower(deviceId), ctx.Value("userEmail").(string))
@@ -94,10 +94,10 @@ func (repository *DeviceRepositoryImpl) FindDeviceById(ctx context.Context, tx p
 }
 
 func (repository *DeviceRepositoryImpl) GetAllDevices(ctx context.Context, tx pgx.Tx) []entity.Device {
-	fmt.Println("Invoke GetAllDevices Repository")
+	logx.DebugCtx(ctx, "Invoke GetAllDevices Repository")
 
 	SQL := config.GetAllDevicesSQL()
-	fmt.Println(SQL, ctx.Value("userEmail").(string))
+	logx.DebugfCtx(ctx, SQL, ctx.Value("userEmail").(string))
 	rows, err := tx.Query(ctx, SQL, ctx.Value("userEmail").(string))
 	helper.PanicIfError(err)
 	defer rows.Close()

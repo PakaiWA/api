@@ -11,7 +11,7 @@
 package controller
 
 import (
-	"fmt"
+	"github.com/pakaiwa/api/logx"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
@@ -37,7 +37,7 @@ func (controller *DeviceControllerImpl) RegisterRoutes(router *httprouter.Router
 }
 
 func (controller *DeviceControllerImpl) AddDevice(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-	fmt.Println("Invoke AddDevice Controller")
+	logx.InfoCtx(request.Context(), "Invoke AddDevice Controller")
 	req := api.DeviceAddRq{}
 	api.ReadFromRequestBody(request, &req)
 
@@ -55,13 +55,13 @@ func (controller *DeviceControllerImpl) AddDevice(writer http.ResponseWriter, re
 }
 
 func (controller *DeviceControllerImpl) DeleteDevice(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-	fmt.Println("Invoke DeleteDevice Controller")
+	logx.InfoCtx(request.Context(), "Invoke DeleteDevice Controller")
 	controller.DeviceService.DeleteDevice(request.Context(), params.ByName("deviceId"))
 	writer.WriteHeader(http.StatusNoContent)
 }
 
 func (controller *DeviceControllerImpl) GetDeviceById(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-	fmt.Println("Invoke GetDeviceById Controller")
+	logx.InfoCtx(request.Context(), "Invoke GetDeviceById Controller")
 	res := controller.DeviceService.GetDevice(request.Context(), params.ByName("deviceId"))
 
 	webResponse := api.ResponseAPI{
@@ -75,7 +75,7 @@ func (controller *DeviceControllerImpl) GetDeviceById(writer http.ResponseWriter
 }
 
 func (controller *DeviceControllerImpl) GetAllDevices(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-	fmt.Println("Invoke GetAllDevices Controller")
+	logx.InfoCtx(request.Context(), "Invoke GetAllDevices Controller")
 
 	res := controller.DeviceService.GetAllDevices(request.Context())
 

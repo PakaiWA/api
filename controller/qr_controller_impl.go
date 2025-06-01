@@ -11,7 +11,7 @@
 package controller
 
 import (
-	"fmt"
+	"github.com/pakaiwa/api/logx"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
@@ -39,7 +39,7 @@ func (controller *QRControllerImpl) RegisterRoutes(router *httprouter.Router) {
 }
 
 func (controller *QRControllerImpl) getQRCode(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-	fmt.Println("Invoke getQRCode Controller")
+	logx.InfoCtx(request.Context(), "Invoke getQRCode Controller")
 
 	qrRs := controller.QRUsecase.GetQRCode(request.Context(), request)
 
@@ -54,7 +54,7 @@ func (controller *QRControllerImpl) getQRCode(writer http.ResponseWriter, reques
 }
 
 func (controller *QRControllerImpl) showQR(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-	fmt.Println("Invoke showQR Controller")
+	logx.InfoCtx(request.Context(), "Invoke showQR Controller")
 
 	qrCode := request.URL.Query().Get("qrCode")
 	if qrCode == "" {

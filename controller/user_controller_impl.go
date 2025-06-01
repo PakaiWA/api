@@ -11,7 +11,7 @@
 package controller
 
 import (
-	"fmt"
+	"github.com/pakaiwa/api/logx"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
@@ -35,13 +35,13 @@ func (controller *UserControllerImpl) RegisterRoutes(router *httprouter.Router) 
 }
 
 func (controller *UserControllerImpl) Logout(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-	fmt.Println("Invoke Logout Controller")
+	logx.InfoCtx(request.Context(), "Invoke Logout Controller")
 	controller.UserService.Logout(request.Context())
 	writer.WriteHeader(http.StatusNoContent)
 }
 
 func (controller *UserControllerImpl) Login(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-	fmt.Println("Invoke Login Controller")
+	logx.InfoCtx(request.Context(), "Invoke Login Controller")
 	req := api.UserRq{}
 	api.ReadFromRequestBody(request, &req)
 
@@ -58,7 +58,7 @@ func (controller *UserControllerImpl) Login(writer http.ResponseWriter, request 
 }
 
 func (controller *UserControllerImpl) CreateUser(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-	fmt.Println("Invoke CreateUser Controller")
+	logx.InfoCtx(request.Context(), "Invoke CreateUser Controller")
 	req := api.UserRq{}
 	api.ReadFromRequestBody(request, &req)
 
