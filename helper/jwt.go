@@ -5,27 +5,31 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //
 // @author KAnggara75 on Thu 01/05/25 15.44
-// @project api helper
+// @project api https://github.com/PakaiWA/api/tree/main/helper
 //
 
 package helper
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/pakaiwa/api/config"
 	"github.com/pakaiwa/api/model/entity"
-	"time"
 )
 
 func GenerateJWT(user entity.User) (string, error) {
 
 	jwtKey := config.GetJWTKey()
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"email": user.Email,
-		"iat":   time.Now().Unix(),
-	})
+	token := jwt.NewWithClaims(
+		jwt.SigningMethodHS256,
+		jwt.MapClaims{
+			"email": user.Email,
+			"iat":   time.Now().Unix(),
+		},
+	)
 
 	tokenString, err := token.SignedString(jwtKey)
 

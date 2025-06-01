@@ -5,19 +5,20 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //
 // @author KAnggara75 on Sun 27/04/25 18.20
-// @project api controller
+// @project api https://github.com/PakaiWA/api/tree/main/controller
 //
 
 package controller
 
 import (
-	"fmt"
+	"github.com/pakaiwa/api/logx"
+	"net/http"
+
 	"github.com/julienschmidt/httprouter"
 	"github.com/pakaiwa/api/middleware"
 	"github.com/pakaiwa/api/model/api"
 	"github.com/pakaiwa/api/service"
 	"github.com/pakaiwa/api/utils"
-	"net/http"
 )
 
 type DeviceControllerImpl struct {
@@ -36,7 +37,7 @@ func (controller *DeviceControllerImpl) RegisterRoutes(router *httprouter.Router
 }
 
 func (controller *DeviceControllerImpl) AddDevice(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-	fmt.Println("Invoke AddDevice Controller")
+	logx.InfoCtx(request.Context(), "Invoke AddDevice Controller")
 	req := api.DeviceAddRq{}
 	api.ReadFromRequestBody(request, &req)
 
@@ -54,18 +55,14 @@ func (controller *DeviceControllerImpl) AddDevice(writer http.ResponseWriter, re
 }
 
 func (controller *DeviceControllerImpl) DeleteDevice(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-	fmt.Println("Invoke DeleteDevice Controller")
-
-	deviceId := params.ByName("deviceId")
-	controller.DeviceService.DeleteDevice(request.Context(), deviceId)
-
+	logx.InfoCtx(request.Context(), "Invoke DeleteDevice Controller")
+	controller.DeviceService.DeleteDevice(request.Context(), params.ByName("deviceId"))
 	writer.WriteHeader(http.StatusNoContent)
 }
 
 func (controller *DeviceControllerImpl) GetDeviceById(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-	fmt.Println("Invoke GetDeviceById Controller")
-	deviceId := params.ByName("deviceId")
-	res := controller.DeviceService.GetDevice(request.Context(), deviceId)
+	logx.InfoCtx(request.Context(), "Invoke GetDeviceById Controller")
+	res := controller.DeviceService.GetDevice(request.Context(), params.ByName("deviceId"))
 
 	webResponse := api.ResponseAPI{
 		Code:   200,
@@ -75,11 +72,10 @@ func (controller *DeviceControllerImpl) GetDeviceById(writer http.ResponseWriter
 	}
 
 	api.WriteToResponseBody(writer, webResponse.Code, webResponse)
-
 }
 
 func (controller *DeviceControllerImpl) GetAllDevices(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-	fmt.Println("Invoke GetAllDevices Controller")
+	logx.InfoCtx(request.Context(), "Invoke GetAllDevices Controller")
 
 	res := controller.DeviceService.GetAllDevices(request.Context())
 
@@ -91,5 +87,4 @@ func (controller *DeviceControllerImpl) GetAllDevices(writer http.ResponseWriter
 	}
 
 	api.WriteToResponseBody(writer, webResponse.Code, webResponse)
-
 }

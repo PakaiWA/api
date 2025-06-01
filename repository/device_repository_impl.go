@@ -5,16 +5,19 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //
 // @author KAnggara75 on Sun 27/04/25 18.09
-// @project api repository
+// @project api https://github.com/PakaiWA/api/tree/main/repository
 //
 
 package repository
 
 import (
 	"context"
-	"database/sql"
 	"errors"
-	"fmt"
+	"github.com/pakaiwa/api/logx"
+	"strings"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/pakaiwa/api/config"
 	"github.com/pakaiwa/api/helper"
 	"github.com/pakaiwa/api/model/entity"
 	"github.com/pakaiwa/api/utils"
@@ -26,89 +29,78 @@ func NewDeviceRepository() DeviceRepository {
 	return &DeviceRepositoryImpl{}
 }
 
-func (repository *DeviceRepositoryImpl) AddDevice(ctx context.Context, tx *sql.Tx, device entity.Device) entity.Device {
-	fmt.Println("Invoke AddDevice Repository")
+func (repository *DeviceRepositoryImpl) AddDevice(ctx context.Context, tx pgx.Tx, device entity.Device) (entity.Device, error) {
+	logx.DebugCtx(ctx, "Invoke AddDevice Repository")
+
+	var count int
+	CountDeviceSQL := config.GetCountDeviceSQL()
+	err := tx.QueryRow(ctx, CountDeviceSQL, strings.ToLower(device.Name), ctx.Value("userEmail").(string)).Scan(&count)
+	if err != nil {
+		return device, err
+	}
+
+	if count != 0 {
+		return device, errors.New("error: Device id already exists, choose another one")
+	}
 
 	deviceId := utils.GenerateUUID()
+	AddDeviceSQL := config.GetAddDeviceSQL()
+	logx.DebugfCtx(ctx, AddDeviceSQL, deviceId, ctx.Value("userEmail").(string), strings.ToLower(device.Name))
 
-	SQL := "insert into device.user_devices (uuid, name) values ($1, $2) RETURNING name, status, created_at"
-
-	fmt.Println(SQL, deviceId, device.Name)
-
-	err := tx.QueryRowContext(ctx, SQL, deviceId, device.Name).
+	err = tx.QueryRow(ctx, AddDeviceSQL, deviceId, ctx.Value("userEmail").(string), strings.ToLower(device.Name)).
 		Scan(&device.Name, &device.Status, &device.CreatedAt)
+	if err != nil {
+		return device, err
+	}
 
-	helper.PanicIfError(err)
-	fmt.Println("Success insert device", device)
-
-	return device
+	logx.DebugfCtx(ctx, "Success insert device", device)
+	return device, nil
 }
 
-func (repository *DeviceRepositoryImpl) DeleteDevice(ctx context.Context, tx *sql.Tx, device entity.Device) {
-	fmt.Println("Invoke DeleteDevice Repository")
+func (repository *DeviceRepositoryImpl) DeleteDevice(ctx context.Context, tx pgx.Tx, device entity.Device) {
+	logx.DebugCtx(ctx, "Invoke DeleteDevice Repository")
 
-	SQL := "delete from device.user_devices where name = $1"
-	_, err := tx.ExecContext(ctx, SQL, device.Name)
+	SQL := config.GetDeleteDeviceSQL()
+	_, err := tx.Exec(ctx, SQL, strings.ToLower(device.Name), ctx.Value("userEmail").(string))
 	helper.PanicIfError(err)
 }
 
-func (repository *DeviceRepositoryImpl) FindDeviceById(ctx context.Context, tx *sql.Tx, deviceId string) (entity.Device, error) {
-	fmt.Println("Invoke FindDeviceById Repository")
+func (repository *DeviceRepositoryImpl) FindDeviceById(ctx context.Context, tx pgx.Tx, deviceId string) (entity.Device, error) {
+	logx.DebugCtx(ctx, "Invoke FindDeviceById Repository")
 
-	SQL := "select name, status, phone_number, created_at, connected_at, disconnected_at, disconnected_reason from device.user_devices where name = $1"
-	rows, err := tx.QueryContext(ctx, SQL, deviceId)
+	SQL := config.GetDeviceByIdSQL()
+	rows, err := tx.Query(ctx, SQL, strings.ToLower(deviceId), ctx.Value("userEmail").(string))
 	helper.PanicIfError(err)
-	defer func(rows *sql.Rows) {
-		err := rows.Close()
-		if err != nil {
-			helper.PanicIfError(err)
-		}
-	}(rows)
-
-	var connectedAt sql.NullString
-	var disconnectedAt sql.NullString
-	var disconnectedReason sql.NullString
+	defer rows.Close()
 
 	device := entity.Device{}
 
 	if rows.Next() {
 		err := rows.Scan(
+			&device.Id,
 			&device.Name,
 			&device.Status,
 			&device.PhoneNumber,
 			&device.CreatedAt,
-			&connectedAt,
-			&disconnectedAt,
-			&disconnectedReason,
+			&device.ConnectedAt,
+			&device.DisconnectedAt,
+			&device.DisconnectedReason,
 		)
 		helper.PanicIfError(err)
-
-		device.ConnectedAt = utils.SafeString(connectedAt)
-		device.DisconnectedAt = utils.SafeString(disconnectedAt)
-		device.DisconnectedReason = utils.SafeString(disconnectedReason)
-
 		return device, nil
 	} else {
 		return device, errors.New("error: Device not found")
 	}
 }
 
-func (repository *DeviceRepositoryImpl) GetAllDevices(ctx context.Context, tx *sql.Tx) []entity.Device {
-	fmt.Println("Invoke GetAllDevices Repository")
+func (repository *DeviceRepositoryImpl) GetAllDevices(ctx context.Context, tx pgx.Tx) []entity.Device {
+	logx.DebugCtx(ctx, "Invoke GetAllDevices Repository")
 
-	SQL := "select name, status, phone_number, created_at, connected_at, disconnected_at, disconnected_reason from device.user_devices"
-	rows, err := tx.QueryContext(ctx, SQL)
+	SQL := config.GetAllDevicesSQL()
+	logx.DebugfCtx(ctx, SQL, ctx.Value("userEmail").(string))
+	rows, err := tx.Query(ctx, SQL, ctx.Value("userEmail").(string))
 	helper.PanicIfError(err)
-	defer func(rows *sql.Rows) {
-		err := rows.Close()
-		if err != nil {
-			helper.PanicIfError(err)
-		}
-	}(rows)
-
-	var connectedAt sql.NullString
-	var disconnectedAt sql.NullString
-	var disconnectedReason sql.NullString
+	defer rows.Close()
 
 	var devices []entity.Device
 
@@ -119,15 +111,11 @@ func (repository *DeviceRepositoryImpl) GetAllDevices(ctx context.Context, tx *s
 			&device.Status,
 			&device.PhoneNumber,
 			&device.CreatedAt,
-			&connectedAt,
-			&disconnectedAt,
-			&disconnectedReason,
+			&device.ConnectedAt,
+			&device.DisconnectedAt,
+			&device.DisconnectedReason,
 		)
 		helper.PanicIfError(err)
-		device.ConnectedAt = utils.SafeString(connectedAt)
-		device.DisconnectedAt = utils.SafeString(disconnectedAt)
-		device.DisconnectedReason = utils.SafeString(disconnectedReason)
-
 		devices = append(devices, device)
 	}
 

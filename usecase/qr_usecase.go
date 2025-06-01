@@ -4,20 +4,19 @@
 // License, v.2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //
-// @author KAnggara75 on Thu 01/05/25 13.50
-// @project api https://github.com/PakaiWA/api/tree/main/service
+// @author KAnggara75 on Sun 04/05/25 22.04
+// @project api https://github.com/PakaiWA/api/tree/main/usecase
 //
 
-package service
+package usecase
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/pakaiwa/api/model/api"
 )
 
-type UserService interface {
-	Logout(ctx context.Context)
-	Login(ctx context.Context, user api.UserRq) api.UserRs
-	CreateUser(ctx context.Context, user api.UserRq) api.UserRs
+type QRUsecase interface {
+	GetQRCode(ctx context.Context, request *http.Request) api.QRCodeRs
 }

@@ -5,21 +5,67 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //
 // @author KAnggara75 on Sun 27/04/25 15.43
-// @project api config
+// @project api https://github.com/PakaiWA/api/tree/main/config
 //
 
 package config
 
 import (
-	"fmt"
 	"github.com/spf13/viper"
+	"strings"
+	"time"
 )
 
-func GetDBCon() string {
-	fmt.Println(viper.Get("db.pakaiwa.host"))
+func GetDBConn() string {
 	return viper.GetString("db.pakaiwa.host")
 }
 
-func GetJWTKey() []byte {
-	return []byte(viper.GetString("app.jwt.sign_key"))
+func GetDBMinConn() int32 {
+	minConn := viper.GetInt32("db.pakaiwa.MinConns")
+	if minConn <= 0 {
+		minConn = 1
+	}
+	return minConn
+}
+
+func GetDBMaxConn() int32 {
+	maxConn := viper.GetInt32("db.pakaiwa.MaxConns")
+	if maxConn <= 0 {
+		maxConn = 10
+	}
+	return maxConn
+}
+
+func GetDBHealthCheckPeriod() time.Duration {
+	if viper.IsSet("db.pakaiwa.HealthCheckPeriod") {
+		val := viper.GetDuration("db.pakaiwa.HealthCheckPeriod")
+		if val > 0 {
+			return val
+		}
+	}
+	return 1 * time.Minute
+}
+
+func GetJWTKey() []byte { return []byte(viper.GetString("app.jwt.sign_key")) }
+
+func GetAdminToken() string { return viper.GetString("app.admin.token") }
+
+func GetAllDevicesSQL() string { return viper.GetString("app.sql.getAllDevices") }
+
+func GetDeviceByIdSQL() string { return viper.GetString("app.sql.getDeviceById") }
+
+func GetDeleteDeviceSQL() string { return viper.GetString("app.sql.deleteDeviceById") }
+
+func GetAddDeviceSQL() string { return viper.GetString("app.sql.addDevice") }
+
+func GetCountDeviceSQL() string { return viper.GetString("app.sql.countDeviceById") }
+
+func GetRedisHost() string { return viper.GetString("redis.host") }
+
+func GetRedisPassword() string { return viper.GetString("redis.password") }
+
+func GetLogLevel() string { return viper.GetString("log.level") }
+
+func Get40Space() string {
+	return strings.Repeat(" ", 40)
 }

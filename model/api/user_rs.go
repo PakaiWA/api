@@ -5,13 +5,15 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //
 // @author KAnggara75 on Thu 01/05/25 13.55
-// @project api api
+// @project api https://github.com/PakaiWA/api/tree/main/api
 //
 
 package api
 
 import (
-	"fmt"
+	"context"
+	"github.com/pakaiwa/api/logx"
+
 	"github.com/pakaiwa/api/helper"
 	"github.com/pakaiwa/api/model/entity"
 )
@@ -22,8 +24,8 @@ type UserRs struct {
 	Token string `json:"token"`
 }
 
-func ToUserResponse(user entity.User) UserRs {
-	fmt.Println("Invoke ToUserResponse")
+func ToUserResponse(ctx context.Context, user entity.User) UserRs {
+	logx.DebugCtx(ctx, "Invoke ToUserResponse")
 
 	token, err := helper.GenerateJWT(user)
 	if err != nil {

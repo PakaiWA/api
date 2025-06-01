@@ -5,27 +5,55 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //
 // @author KAnggara75 on Sun 27/04/25 21.28
-// @project api app
+// @project api https://github.com/PakaiWA/api/tree/main/app
 //
 
 package app
 
 import (
-	"database/sql"
-	_ "github.com/jackc/pgx/v5/stdlib"
+	"context"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"sync"
+	"time"
+
 	"github.com/pakaiwa/api/config"
 	"github.com/pakaiwa/api/helper"
-	"time"
 )
 
-func NewDBConn() *sql.DB {
-	db, err := sql.Open("pgx", config.GetDBCon())
-	helper.PanicIfError(err)
+var (
+	pool   *pgxpool.Pool
+	onceDb sync.Once
+)
 
-	db.SetMaxIdleConns(5)
-	db.SetMaxOpenConns(20)
-	db.SetConnMaxLifetime(60 * time.Minute)
-	db.SetConnMaxIdleTime(10 * time.Minute)
+func NewDBConn(ctx context.Context) *pgxpool.Pool {
+	NewLogger().Info().Str("trace_id", config.Get40Space()).Msgf("Connecting to database...")
 
-	return db
+	onceDb.Do(func() {
+		cfg, err := pgxpool.ParseConfig(config.GetDBConn())
+		helper.PanicIfError(err)
+
+		cfg.MinConns = config.GetDBMinConn()
+		cfg.MaxConns = config.GetDBMaxConn()
+		cfg.HealthCheckPeriod = config.GetDBHealthCheckPeriod()
+
+		start := time.Now()
+		pool, err = pgxpool.NewWithConfig(ctx, cfg)
+		helper.PanicIfError(err)
+		NewLogger().Debug().Str("trace_id", config.Get40Space()).Msgf("pgxpool.NewWithConfig took %s", time.Since(start))
+
+		ctx, cancel := context.WithTimeout(ctx, time.Minute)
+		defer cancel()
+		NewLogger().Info().Str("trace_id", config.Get40Space()).Msg("Pinging database...")
+		if err := pool.Ping(ctx); err != nil {
+			NewLogger().Error().Str("trace_id", config.Get40Space()).Msgf("Ping timeout: %v", err)
+		}
+		NewLogger().Info().Str("trace_id", config.Get40Space()).Msg("Pinging done...")
+	})
+
+	if pool == nil {
+		NewLogger().Error().Str("trace_id", config.Get40Space()).Msgf("Database pool is nil")
+	}
+
+	NewLogger().Info().Str("trace_id", config.Get40Space()).Msg("Connected to database...")
+	return pool
 }

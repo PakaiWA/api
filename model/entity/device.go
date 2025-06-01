@@ -5,18 +5,20 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //
 // @author KAnggara75 on Sun 27/04/25 17.43
-// @project api entity
+// @project api https://github.com/PakaiWA/api/tree/main/entity
 //
 
 package entity
+
+import "time"
 
 type Device struct {
 	Id                 string
 	Name               string
 	Status             string
 	PhoneNumber        string
-	CreatedAt          string
-	ConnectedAt        string
-	DisconnectedAt     string
-	DisconnectedReason string
+	CreatedAt          time.Time
+	ConnectedAt        *time.Time
+	DisconnectedAt     *time.Time
+	DisconnectedReason *string
 }

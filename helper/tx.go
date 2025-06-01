@@ -5,21 +5,40 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //
 // @author KAnggara75 on Sun 27/04/25 22.01
-// @project api helper
+// @project api https://github.com/PakaiWA/api/tree/main/helper
 //
 
 package helper
 
-import "database/sql"
+import (
+	"context"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
+)
 
-func CommitOrRollback(tx *sql.Tx) {
+func DBTransaction(ctx context.Context, DB *pgxpool.Pool) (pgx.Tx, *pgxpool.Conn, error) {
+	conn, err := DB.Acquire(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	tx, err := conn.BeginTx(ctx, pgx.TxOptions{})
+	if err != nil {
+		conn.Release()
+		return nil, nil, err
+	}
+
+	return tx, conn, nil
+}
+
+func CommitOrRollback(ctx context.Context, tx pgx.Tx) {
 	err := recover()
 	if err != nil {
-		errorRollback := tx.Rollback()
+		errorRollback := tx.Rollback(ctx)
 		PanicIfError(errorRollback)
 		panic(err)
 	} else {
-		errorCommit := tx.Commit()
+		errorCommit := tx.Commit(ctx)
 		PanicIfError(errorCommit)
 	}
 }

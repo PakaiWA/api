@@ -5,16 +5,18 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //
 // @author KAnggara75 on Sun 27/04/25 18.19
-// @project api service
+// @project api https://github.com/PakaiWA/api/tree/main/service
 //
 
 package service
 
 import (
 	"context"
-	"database/sql"
-	"fmt"
+	"github.com/pakaiwa/api/logx"
+	"net/http"
+
 	"github.com/go-playground/validator/v10"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pakaiwa/api/exception"
 	"github.com/pakaiwa/api/helper"
 	"github.com/pakaiwa/api/model/api"
@@ -24,11 +26,11 @@ import (
 
 type DeviceServiceImpl struct {
 	DeviceRepository repository.DeviceRepository
-	DB               *sql.DB
+	DB               *pgxpool.Pool
 	Validate         *validator.Validate
 }
 
-func NewDeviceService(deviceRepository repository.DeviceRepository, DB *sql.DB, validate *validator.Validate) DeviceService {
+func NewDeviceService(deviceRepository repository.DeviceRepository, DB *pgxpool.Pool, validate *validator.Validate) DeviceService {
 	return &DeviceServiceImpl{
 		DeviceRepository: deviceRepository,
 		DB:               DB,
@@ -36,65 +38,90 @@ func NewDeviceService(deviceRepository repository.DeviceRepository, DB *sql.DB, 
 	}
 }
 
-func (service *DeviceServiceImpl) DeleteDevice(ctx context.Context, id string) {
-	fmt.Println("Invoke DeleteDevice Service")
+func (service *DeviceServiceImpl) GetDeviceById(ctx context.Context, id string) (api.DeviceRs, error) {
+	logx.DebugCtx(ctx, "Invoke GetDeviceById Service")
 
-	tx, err := service.DB.Begin()
+	tx, conn, err := helper.DBTransaction(ctx, service.DB)
+	logx.DebugCtx(ctx, "Invoke DBTransaction")
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx)
+	defer conn.Release()
+	defer helper.CommitOrRollback(ctx, tx)
 
 	device, err := service.DeviceRepository.FindDeviceById(ctx, tx, id)
 	if err != nil {
-		panic(exception.NewNotFoundError(err.Error()))
+		return api.DeviceRs{}, err
+	}
+
+	return api.ToDeviceResponse(ctx, device), nil
+}
+
+func (service *DeviceServiceImpl) DeleteDevice(ctx context.Context, id string) {
+	logx.DebugCtx(ctx, "Invoke DeleteDevice Service")
+
+	tx, conn, err := helper.DBTransaction(ctx, service.DB)
+	logx.DebugCtx(ctx, "Invoke DBTransaction")
+	helper.PanicIfError(err)
+	defer conn.Release()
+	defer helper.CommitOrRollback(ctx, tx)
+
+	device, err := service.DeviceRepository.FindDeviceById(ctx, tx, id)
+	if err != nil {
+		panic(exception.NewHTTPError(http.StatusNotFound, err.Error()))
 	}
 
 	service.DeviceRepository.DeleteDevice(ctx, tx, device)
 }
 
 func (service *DeviceServiceImpl) GetAllDevices(ctx context.Context) []api.DeviceRs {
-	fmt.Println("Invoke GetAllDevices Service")
+	logx.DebugCtx(ctx, "Invoke GetAllDevices Service")
 
-	tx, err := service.DB.Begin()
+	tx, conn, err := helper.DBTransaction(ctx, service.DB)
+	logx.DebugCtx(ctx, "Invoke DBTransaction")
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx)
+	defer conn.Release()
+	defer helper.CommitOrRollback(ctx, tx)
 
 	devices := service.DeviceRepository.GetAllDevices(ctx, tx)
-	if err != nil {
-		panic(exception.NewNotFoundError(err.Error()))
-	}
 
-	return api.ToDeviceResponses(devices)
+	return api.ToDeviceResponses(ctx, devices)
 }
 
 func (service *DeviceServiceImpl) GetDevice(ctx context.Context, id string) api.DeviceRs {
-	fmt.Println("Invoke GetDevice Service")
+	logx.DebugCtx(ctx, "Invoke GetDevice Service")
 
-	tx, err := service.DB.Begin()
+	tx, conn, err := helper.DBTransaction(ctx, service.DB)
+	logx.DebugCtx(ctx, "Invoke DBTransaction")
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx)
+	defer conn.Release()
+	defer helper.CommitOrRollback(ctx, tx)
 
 	device, err := service.DeviceRepository.FindDeviceById(ctx, tx, id)
 	if err != nil {
-		panic(exception.NewNotFoundError(err.Error()))
+		panic(exception.NewHTTPError(http.StatusNotFound, err.Error()))
 	}
 
-	return api.ToDeviceResponse(device)
+	return api.ToDeviceResponse(ctx, device)
 }
 
 func (service *DeviceServiceImpl) AddDevice(ctx context.Context, req api.DeviceAddRq) api.DeviceRs {
-	fmt.Println("Invoke AddDevice Service")
+	logx.DebugCtx(ctx, "Invoke AddDevice Service")
 	err := service.Validate.Struct(req)
 	helper.PanicIfError(err)
 
-	tx, err := service.DB.Begin()
+	tx, conn, err := helper.DBTransaction(ctx, service.DB)
+	logx.DebugCtx(ctx, "Invoke DBTransaction")
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx)
+	defer conn.Release()
+	defer helper.CommitOrRollback(ctx, tx)
 
 	device := entity.Device{
 		Name: req.DeviceId,
 	}
 
-	device = service.DeviceRepository.AddDevice(ctx, tx, device)
+	device, err = service.DeviceRepository.AddDevice(ctx, tx, device)
+	if err != nil {
+		panic(exception.NewHTTPError(http.StatusBadRequest, err.Error()))
+	}
 
-	return api.ToDeviceResponse(device)
+	return api.ToDeviceResponse(ctx, device)
 }

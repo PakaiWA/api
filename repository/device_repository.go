@@ -5,20 +5,21 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //
 // @author KAnggara75 on Sun 27/04/25 18.06
-// @project api repository
+// @project api https://github.com/PakaiWA/api/tree/main/repository
 //
 
 package repository
 
 import (
 	"context"
-	"database/sql"
+
+	"github.com/jackc/pgx/v5"
 	"github.com/pakaiwa/api/model/entity"
 )
 
 type DeviceRepository interface {
-	AddDevice(ctx context.Context, tx *sql.Tx, device entity.Device) entity.Device
-	DeleteDevice(ctx context.Context, tx *sql.Tx, device entity.Device)
-	FindDeviceById(ctx context.Context, tx *sql.Tx, deviceId string) (entity.Device, error)
-	GetAllDevices(ctx context.Context, tx *sql.Tx) []entity.Device
+	AddDevice(ctx context.Context, tx pgx.Tx, device entity.Device) (entity.Device, error)
+	DeleteDevice(ctx context.Context, tx pgx.Tx, device entity.Device)
+	FindDeviceById(ctx context.Context, tx pgx.Tx, deviceId string) (entity.Device, error)
+	GetAllDevices(ctx context.Context, tx pgx.Tx) []entity.Device
 }

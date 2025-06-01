@@ -5,13 +5,14 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //
 // @author KAnggara75 on Sun 27/04/25 18.14
-// @project api service
+// @project api https://github.com/PakaiWA/api/tree/main/service
 //
 
 package service
 
 import (
 	"context"
+
 	"github.com/pakaiwa/api/model/api"
 )
 
@@ -20,4 +21,5 @@ type DeviceService interface {
 	GetAllDevices(ctx context.Context) []api.DeviceRs
 	GetDevice(ctx context.Context, id string) api.DeviceRs
 	AddDevice(ctx context.Context, req api.DeviceAddRq) api.DeviceRs
+	GetDeviceById(ctx context.Context, id string) (api.DeviceRs, error)
 }

@@ -4,16 +4,16 @@
 // License, v.2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //
-// @author KAnggara75 on Sun 27/04/25 17.21
-// @project api exception
+// @author KAnggara75 on Sat 03/05/25 15.51
+// @project api https://github.com/PakaiWA/api/tree/main/service
 //
 
-package exception
+package service
 
-type NotFoundError struct {
-	Error string
-}
+import (
+	"context"
+)
 
-func NewNotFoundError(error string) NotFoundError {
-	return NotFoundError{Error: error}
+type QRService interface {
+	GetQRCode(ctx context.Context, deviceId string) string
 }

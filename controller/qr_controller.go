@@ -4,7 +4,7 @@
 // License, v.2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //
-// @author KAnggara75 on Sun 27/04/25 17.13
+// @author KAnggara75 on Sat 03/05/25 15.07
 // @project api https://github.com/PakaiWA/api/tree/main/controller
 //
 
@@ -16,10 +16,8 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-type DeviceController interface {
+type QRController interface {
 	RegisterRoutes(router *httprouter.Router)
-	AddDevice(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
-	DeleteDevice(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
-	GetDeviceById(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
-	GetAllDevices(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
+	getQRCode(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
+	showQR(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
 }
