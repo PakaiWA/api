@@ -44,7 +44,7 @@ func (repo UserRepoImpl) CreateUser(ctx context.Context, tx pgx.Tx, user entity.
 	helper.PanicIfError(err)
 	user.Uuid = uuid
 	user.Password = "" // Clear sensitive data
-	logx.DebugfCtx(ctx, "Success create user with UUID: %s and Email: %s\n", user.Uuid, userEmail)
+	logx.DebugfCtx(ctx, "Success create user with UUID: %s and Email: %s", user.Uuid, userEmail)
 	return user
 }
 
@@ -82,6 +82,6 @@ func (repo UserRepoImpl) Login(ctx context.Context, tx pgx.Tx, email, pass strin
 	}
 
 	user.Password = "" // Clear sensitive data
-	logx.DebugfCtx(ctx, "Success login user with UUID: %s and Email: %s\n", user.Uuid, userEmail)
+	logx.DebugfCtx(ctx, "Success login user with UUID: %s and Email: %s", user.Uuid, userEmail)
 	return user, nil
 }

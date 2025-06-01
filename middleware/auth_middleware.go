@@ -13,6 +13,7 @@ package middleware
 import (
 	"context"
 	"errors"
+	"github.com/pakaiwa/api/utils"
 	"net/http"
 	"strconv"
 	"strings"
@@ -39,6 +40,7 @@ func AuthMiddleware(next httprouter.Handle) httprouter.Handle {
 	}
 
 	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+		requestCtx := context.WithValue(r.Context(), "trace_id", getTraceID(r))
 
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
@@ -57,18 +59,18 @@ func AuthMiddleware(next httprouter.Handle) httprouter.Handle {
 			return
 		}
 
-		exp, err := app.RedisClient.Get(context.Background(), claims.Email).Result()
-		if errors.Is(err, redis.Nil) {
-			logx.InfoCtx(ctx, "Token is valid")
-		} else if err != nil {
-			logx.InfofCtx(ctx, "Error when retrieve data from Redis: %v", err)
+		exp, errRedis := app.RedisClient.Get(requestCtx, claims.Email).Result()
+		if errors.Is(errRedis, redis.Nil) {
+			logx.InfoCtx(requestCtx, "Token is valid")
+		} else if errRedis != nil {
+			logx.InfofCtx(requestCtx, "Error when retrieve data from Redis: %v", errRedis)
 			res.Code = http.StatusInternalServerError
 			res.Status = "INTERNAL_SERVER_ERROR"
 			api.WriteToResponseBody(w, res.Code, res)
 			return
 		} else {
 			if logoutOn, _ := strconv.Atoi(exp); logoutOn > claims.Iat {
-				logx.InfoCtx(ctx, "Token is invalid")
+				logx.InfoCtx(requestCtx, "Token is invalid")
 				res.Code = http.StatusUnauthorized
 				res.Status = "UNAUTHORIZED"
 				api.WriteToResponseBody(w, res.Code, res)
@@ -76,9 +78,8 @@ func AuthMiddleware(next httprouter.Handle) httprouter.Handle {
 			}
 		}
 
-		// save claims to context
-		ctx = context.WithValue(ctx, "userEmail", claims.Email)
-		next(w, r.WithContext(ctx), ps)
+		ctxWithUserEmail := context.WithValue(requestCtx, "userEmail", claims.Email)
+		next(w, r.WithContext(ctxWithUserEmail), ps)
 	}
 }
 
@@ -101,7 +102,15 @@ func AdminMiddleware(next httprouter.Handle) httprouter.Handle {
 			api.WriteToResponseBody(w, res.Code, res)
 			return
 		}
-
+		ctx := context.WithValue(r.Context(), "trace_id", getTraceID(r))
 		next(w, r.WithContext(ctx), ps)
 	}
+}
+
+func getTraceID(r *http.Request) string {
+	traceID := r.Header.Get("ax-request-id")
+	if traceID == "" {
+		traceID = utils.GenerateUUID()
+	}
+	return traceID
 }
