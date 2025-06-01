@@ -95,6 +95,13 @@ func AdminMiddleware(next httprouter.Handle) httprouter.Handle {
 	}
 
 	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+		traceID := r.Header.Get("ax-request-id")
+		if traceID == "" {
+			traceID = utils.GenerateUUID()
+		}
+
+		ctx := context.WithValue(r.Context(), "trace_id", traceID)
+
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
 			api.WriteToResponseBody(w, res.Code, res)
@@ -108,6 +115,6 @@ func AdminMiddleware(next httprouter.Handle) httprouter.Handle {
 			return
 		}
 
-		next(w, r, ps)
+		next(w, r.WithContext(ctx), ps)
 	}
 }

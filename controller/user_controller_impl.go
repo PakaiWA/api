@@ -11,7 +11,9 @@
 package controller
 
 import (
+	"context"
 	"github.com/pakaiwa/api/logx"
+	"github.com/pakaiwa/api/utils"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
@@ -41,11 +43,18 @@ func (controller *UserControllerImpl) Logout(writer http.ResponseWriter, request
 }
 
 func (controller *UserControllerImpl) Login(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-	logx.InfoCtx(request.Context(), "Invoke Login Controller")
+	traceID := request.Header.Get("ax-request-id")
+	if traceID == "" {
+		traceID = utils.GenerateUUID()
+	}
+
+	ctx := context.WithValue(request.Context(), "trace_id", traceID)
+
+	logx.InfoCtx(ctx, "Invoke Login Controller")
 	req := api.UserRq{}
 	api.ReadFromRequestBody(request, &req)
 
-	res := controller.UserService.Login(request.Context(), req)
+	res := controller.UserService.Login(ctx, req)
 
 	apiResponse := api.ResponseAPI{
 		Code:   http.StatusOK,

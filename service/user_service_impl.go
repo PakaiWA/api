@@ -81,7 +81,7 @@ func (service UserServiceImpl) Login(ctx context.Context, req api.UserRq) api.Us
 		panic(exception.NewHTTPError(http.StatusUnauthorized, "Wrong email or password"))
 	}
 
-	return api.ToUserResponse(user)
+	return api.ToUserResponse(ctx, user)
 }
 
 func (service UserServiceImpl) CreateUser(ctx context.Context, req api.UserRq) api.UserRs {
@@ -115,6 +115,6 @@ func (service UserServiceImpl) CreateUser(ctx context.Context, req api.UserRq) a
 
 	user = service.Repo.CreateUser(ctx, tx, user)
 
-	return api.ToUserResponse(user)
+	return api.ToUserResponse(ctx, user)
 
 }

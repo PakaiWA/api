@@ -11,6 +11,7 @@
 package api
 
 import (
+	"context"
 	"github.com/pakaiwa/api/logx"
 
 	"github.com/pakaiwa/api/helper"
@@ -23,8 +24,8 @@ type UserRs struct {
 	Token string `json:"token"`
 }
 
-func ToUserResponse(user entity.User) UserRs {
-	logx.Debug("Invoke ToUserResponse")
+func ToUserResponse(ctx context.Context, user entity.User) UserRs {
+	logx.DebugCtx(ctx, "Invoke ToUserResponse")
 
 	token, err := helper.GenerateJWT(user)
 	if err != nil {
