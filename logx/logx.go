@@ -17,10 +17,8 @@ import (
 	"github.com/rs/zerolog"
 )
 
-var logger = app.NewLogger()
-
 func Debug(msg string, fields ...func(e *zerolog.Event) *zerolog.Event) {
-	e := logger.Debug()
+	e := app.NewLogger().Debug()
 	for _, f := range fields {
 		e = f(e)
 	}
@@ -28,11 +26,11 @@ func Debug(msg string, fields ...func(e *zerolog.Event) *zerolog.Event) {
 }
 
 func Debugf(format string, args ...interface{}) {
-	logger.Debug().Msgf(format, args...)
+	app.NewLogger().Debug().Msgf(format, args...)
 }
 
 func Info(ctx context.Context, msg string, fields ...func(e *zerolog.Event) *zerolog.Event) {
-	e := logger.Info().Str("trace_id", ctx.Value("trace_id").(string))
+	e := app.NewLogger().Info().Str("trace_id", ctx.Value("trace_id").(string))
 	for _, f := range fields {
 		e = f(e)
 	}
@@ -40,11 +38,11 @@ func Info(ctx context.Context, msg string, fields ...func(e *zerolog.Event) *zer
 }
 
 func Infof(format string, args ...interface{}) {
-	logger.Info().Msgf(format, args...)
+	app.NewLogger().Info().Msgf(format, args...)
 }
 
 func Warn(msg string, fields ...func(e *zerolog.Event) *zerolog.Event) {
-	e := logger.Warn()
+	e := app.NewLogger().Warn()
 	for _, f := range fields {
 		e = f(e)
 	}
@@ -52,7 +50,7 @@ func Warn(msg string, fields ...func(e *zerolog.Event) *zerolog.Event) {
 }
 
 func Error(msg string, fields ...func(e *zerolog.Event) *zerolog.Event) {
-	e := logger.Error()
+	e := app.NewLogger().Error()
 	for _, f := range fields {
 		e = f(e)
 	}
@@ -60,11 +58,11 @@ func Error(msg string, fields ...func(e *zerolog.Event) *zerolog.Event) {
 }
 
 func Errorf(format string, args ...interface{}) {
-	logger.Error().Msgf(format, args...)
+	app.NewLogger().Error().Msgf(format, args...)
 }
 
 func Fatal(msg string, fields ...func(e *zerolog.Event) *zerolog.Event) {
-	e := logger.Fatal()
+	e := app.NewLogger().Fatal()
 	for _, f := range fields {
 		e = f(e)
 	}

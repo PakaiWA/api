@@ -13,14 +13,15 @@ package app
 
 import (
 	"fmt"
-	"github.com/pakaiwa/api/config"
-	"github.com/rs/zerolog"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/pakaiwa/api/config"
+	"github.com/rs/zerolog"
 )
 
 var (
@@ -31,35 +32,50 @@ var (
 func NewLogger() *zerolog.Logger {
 	once.Do(func() {
 		logDir := "logs"
-		_ = os.MkdirAll(logDir, os.ModePerm)
+		var logFileWriter io.Writer
+		var finalWriter io.Writer
 
-		date := time.Now().Format("20060102")
-		idx := 0
-		var path string
-		for {
-			path = filepath.Join(logDir, fmt.Sprintf("%s-%02d.log", date, idx))
-			info, err := os.Stat(path)
-			if os.IsNotExist(err) || (err == nil && info.Size() < 1<<30) {
-				break
+		if err := os.MkdirAll(logDir, 0755); err != nil {
+			fmt.Fprintf(os.Stderr, "[WARN] Fail when create logs dir '%s': %v. Log only shown in console.\n", logDir, err)
+		} else {
+			date := time.Now().Format("20060102")
+			idx := 0
+			var path string
+			for {
+				path = filepath.Join(logDir, fmt.Sprintf("%s-%02d.log", date, idx))
+				info, err := os.Stat(path)
+				if os.IsNotExist(err) || (err == nil && info.Size() < 1<<30) { // 1GB limit
+					break
+				}
+				idx++
 			}
-			idx++
+
+			outFile, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "[PERINGATAN] Gagal membuka berkas log '%s': %v. Log hanya akan tampil di konsol.\n", path, err)
+			} else {
+				logFileWriter = outFile
+			}
 		}
 
-		outFile, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
-		if err != nil {
-			panic(fmt.Sprintf("failed to open log file: %v", err))
+		if logFileWriter != nil {
+			finalWriter = io.MultiWriter(os.Stdout, logFileWriter)
+		} else {
+			finalWriter = os.Stdout
 		}
 
-		writer := io.MultiWriter(os.Stdout, outFile)
 		zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 		level := getLogLevel()
-		logger = zerolog.New(writer).
+		logger = zerolog.New(finalWriter).
 			Level(level).
 			With().
 			Timestamp().
 			Logger()
 
-		logger.Info().Msgf("Log level set to: %s", level)
+		logger.Info().Msgf("Inisialisasi logger selesai. Level log: %s.", level)
+		if logFileWriter == nil {
+			logger.Warn().Msg("Logging ke berkas tidak berhasil, log hanya akan tampil di konsol.")
+		}
 	})
 
 	return &logger
