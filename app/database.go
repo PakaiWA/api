@@ -26,7 +26,7 @@ var (
 )
 
 func NewDBConn(ctx context.Context) *pgxpool.Pool {
-	NewLogger().Info().Msgf("Connecting to database...")
+	NewLogger().Info().Str("trace_id", config.Get40Space()).Msgf("Connecting to database...")
 
 	onceDb.Do(func() {
 		cfg, err := pgxpool.ParseConfig(config.GetDBConn())
@@ -39,21 +39,21 @@ func NewDBConn(ctx context.Context) *pgxpool.Pool {
 		start := time.Now()
 		pool, err = pgxpool.NewWithConfig(ctx, cfg)
 		helper.PanicIfError(err)
-		NewLogger().Debug().Msgf("pgxpool.NewWithConfig took %s", time.Since(start))
+		NewLogger().Debug().Str("trace_id", config.Get40Space()).Msgf("pgxpool.NewWithConfig took %s", time.Since(start))
 
 		ctx, cancel := context.WithTimeout(ctx, time.Minute)
 		defer cancel()
-		NewLogger().Info().Msg("Pinging database...")
+		NewLogger().Info().Str("trace_id", config.Get40Space()).Msg("Pinging database...")
 		if err := pool.Ping(ctx); err != nil {
-			NewLogger().Error().Msgf("Ping timeout: %v", err)
+			NewLogger().Error().Str("trace_id", config.Get40Space()).Msgf("Ping timeout: %v", err)
 		}
-		NewLogger().Info().Msg("Pinging done...")
+		NewLogger().Info().Str("trace_id", config.Get40Space()).Msg("Pinging done...")
 	})
 
 	if pool == nil {
-		NewLogger().Error().Msgf("Database pool is nil")
+		NewLogger().Error().Str("trace_id", config.Get40Space()).Msgf("Database pool is nil")
 	}
 
-	NewLogger().Info().Msg("Connected to database...")
+	NewLogger().Info().Str("trace_id", config.Get40Space()).Msg("Connected to database...")
 	return pool
 }

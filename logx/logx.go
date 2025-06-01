@@ -14,8 +14,11 @@ package logx
 import (
 	"context"
 	"github.com/pakaiwa/api/app"
+	"github.com/pakaiwa/api/config"
 	"github.com/rs/zerolog"
 )
+
+var emptyTraceIDPlaceholder = config.Get40Space()
 
 func getTraceIDFromContext(ctx context.Context) string {
 	if ctx == nil {
@@ -35,15 +38,15 @@ func withTraceID(ctx context.Context, event *zerolog.Event) *zerolog.Event {
 	if traceID != "" {
 		return event.Str("trace_id", traceID)
 	}
-	return event
+	return event.Str("trace_id", emptyTraceIDPlaceholder)
 }
 
 func Debug(msg string) {
-	app.NewLogger().Debug().Msg(msg)
+	app.NewLogger().Debug().Str("trace_id", emptyTraceIDPlaceholder).Msg(msg)
 }
 
 func Debugf(format string, args ...interface{}) {
-	app.NewLogger().Debug().Msgf(format, args...)
+	app.NewLogger().Debug().Str("trace_id", emptyTraceIDPlaceholder).Msgf(format, args...)
 }
 
 func DebugCtx(ctx context.Context, msg string) {
@@ -55,11 +58,11 @@ func DebugfCtx(ctx context.Context, format string, args ...interface{}) {
 }
 
 func Info(msg string) {
-	app.NewLogger().Info().Msg(msg)
+	app.NewLogger().Info().Str("trace_id", emptyTraceIDPlaceholder).Msg(msg)
 }
 
 func Infof(format string, args ...interface{}) {
-	app.NewLogger().Info().Msgf(format, args...)
+	app.NewLogger().Info().Str("trace_id", emptyTraceIDPlaceholder).Msgf(format, args...)
 }
 
 func InfoCtx(ctx context.Context, msg string) {
@@ -71,11 +74,11 @@ func InfofCtx(ctx context.Context, format string, args ...interface{}) {
 }
 
 func Warn(msg string) {
-	app.NewLogger().Warn().Msg(msg)
+	app.NewLogger().Warn().Str("trace_id", emptyTraceIDPlaceholder).Msg(msg)
 }
 
 func Warnf(format string, args ...interface{}) {
-	app.NewLogger().Warn().Msgf(format, args...)
+	app.NewLogger().Warn().Str("trace_id", emptyTraceIDPlaceholder).Msgf(format, args...)
 }
 
 func WarnCtx(ctx context.Context, msg string) {
@@ -87,11 +90,11 @@ func WarnfCtx(ctx context.Context, format string, args ...interface{}) {
 }
 
 func Error(msg string) {
-	app.NewLogger().Error().Msg(msg)
+	app.NewLogger().Error().Str("trace_id", emptyTraceIDPlaceholder).Msg(msg)
 }
 
 func Errorf(format string, args ...interface{}) {
-	app.NewLogger().Error().Msgf(format, args...)
+	app.NewLogger().Error().Str("trace_id", emptyTraceIDPlaceholder).Msgf(format, args...)
 }
 
 func ErrorCtx(ctx context.Context, msg string) {

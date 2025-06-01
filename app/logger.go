@@ -72,9 +72,9 @@ func NewLogger() *zerolog.Logger {
 			Timestamp().
 			Logger()
 
-		logger.Info().Msgf("Inisialisasi logger selesai. Level log: %s.", level)
+		logger.Debug().Str("trace_id", config.Get40Space()).Msgf("Inisialisasi logger selesai. Level log: %s.", level)
 		if logFileWriter == nil {
-			logger.Warn().Msg("Logging ke berkas tidak berhasil, log hanya akan tampil di konsol.")
+			logger.Warn().Str("trace_id", config.Get40Space()).Msg("Logging ke berkas tidak berhasil, log hanya akan tampil di konsol.")
 		}
 	})
 
