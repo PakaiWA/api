@@ -72,9 +72,10 @@ func NewLogger() *zerolog.Logger {
 		consoleWriter.PartsOrder = []string{
 			zerolog.TimestampFieldName,
 			zerolog.LevelFieldName,
+			"trace_id",
 			zerolog.MessageFieldName,
 		}
-		
+
 		if logFileFailed {
 			logger.Warn().Str("trace_id", config.Get40Space()).Msg("Logging to the file is not successful, the log will only appear on the console.")
 			finalWriter = consoleWriter
