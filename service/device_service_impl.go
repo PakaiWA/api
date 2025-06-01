@@ -52,7 +52,7 @@ func (service *DeviceServiceImpl) GetDeviceById(ctx context.Context, id string) 
 		return api.DeviceRs{}, err
 	}
 
-	return api.ToDeviceResponse(device), nil
+	return api.ToDeviceResponse(ctx, device), nil
 }
 
 func (service *DeviceServiceImpl) DeleteDevice(ctx context.Context, id string) {
@@ -83,7 +83,7 @@ func (service *DeviceServiceImpl) GetAllDevices(ctx context.Context) []api.Devic
 
 	devices := service.DeviceRepository.GetAllDevices(ctx, tx)
 
-	return api.ToDeviceResponses(devices)
+	return api.ToDeviceResponses(ctx, devices)
 }
 
 func (service *DeviceServiceImpl) GetDevice(ctx context.Context, id string) api.DeviceRs {
@@ -100,7 +100,7 @@ func (service *DeviceServiceImpl) GetDevice(ctx context.Context, id string) api.
 		panic(exception.NewHTTPError(http.StatusNotFound, err.Error()))
 	}
 
-	return api.ToDeviceResponse(device)
+	return api.ToDeviceResponse(ctx, device)
 }
 
 func (service *DeviceServiceImpl) AddDevice(ctx context.Context, req api.DeviceAddRq) api.DeviceRs {
@@ -123,5 +123,5 @@ func (service *DeviceServiceImpl) AddDevice(ctx context.Context, req api.DeviceA
 		panic(exception.NewHTTPError(http.StatusBadRequest, err.Error()))
 	}
 
-	return api.ToDeviceResponse(device)
+	return api.ToDeviceResponse(ctx, device)
 }

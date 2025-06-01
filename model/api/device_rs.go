@@ -11,6 +11,7 @@
 package api
 
 import (
+	"context"
 	"github.com/pakaiwa/api/logx"
 	"time"
 
@@ -27,8 +28,8 @@ type DeviceRs struct {
 	DisconnectedReason *string    `json:"disconnected_reason,omitempty"`
 }
 
-func ToDeviceResponse(device entity.Device) DeviceRs {
-	logx.Debug("Invoke ToDeviceResponse")
+func ToDeviceResponse(ctx context.Context, device entity.Device) DeviceRs {
+	logx.DebugCtx(ctx, "Invoke ToDeviceResponse")
 	return DeviceRs{
 		Id:                 device.Name,
 		Status:             device.Status,
@@ -40,12 +41,12 @@ func ToDeviceResponse(device entity.Device) DeviceRs {
 	}
 }
 
-func ToDeviceResponses(devices []entity.Device) []DeviceRs {
-	logx.Debug("Invoke ToDeviceResponses")
+func ToDeviceResponses(ctx context.Context, devices []entity.Device) []DeviceRs {
+	logx.DebugCtx(ctx, "Invoke ToDeviceResponses")
 	//goland:noinspection ALL
 	deviceResponses := []DeviceRs{}
 	for _, device := range devices {
-		deviceResponses = append(deviceResponses, ToDeviceResponse(device))
+		deviceResponses = append(deviceResponses, ToDeviceResponse(ctx, device))
 	}
 	return deviceResponses
 }
