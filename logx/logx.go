@@ -12,12 +12,15 @@
 package logx
 
 import (
+	"context"
 	"github.com/pakaiwa/api/app"
 	"github.com/rs/zerolog"
 )
 
+var logger = app.NewLogger()
+
 func Debug(msg string, fields ...func(e *zerolog.Event) *zerolog.Event) {
-	e := app.NewLogger().Debug()
+	e := logger.Debug()
 	for _, f := range fields {
 		e = f(e)
 	}
@@ -25,11 +28,11 @@ func Debug(msg string, fields ...func(e *zerolog.Event) *zerolog.Event) {
 }
 
 func Debugf(format string, args ...interface{}) {
-	app.NewLogger().Debug().Msgf(format, args...)
+	logger.Debug().Msgf(format, args...)
 }
 
-func Info(msg string, fields ...func(e *zerolog.Event) *zerolog.Event) {
-	e := app.NewLogger().Info()
+func Info(ctx context.Context, msg string, fields ...func(e *zerolog.Event) *zerolog.Event) {
+	e := logger.Info().Str("trace_id", ctx.Value("trace_id").(string))
 	for _, f := range fields {
 		e = f(e)
 	}
@@ -37,11 +40,11 @@ func Info(msg string, fields ...func(e *zerolog.Event) *zerolog.Event) {
 }
 
 func Infof(format string, args ...interface{}) {
-	app.NewLogger().Info().Msgf(format, args...)
+	logger.Info().Msgf(format, args...)
 }
 
 func Warn(msg string, fields ...func(e *zerolog.Event) *zerolog.Event) {
-	e := app.NewLogger().Warn()
+	e := logger.Warn()
 	for _, f := range fields {
 		e = f(e)
 	}
@@ -49,7 +52,7 @@ func Warn(msg string, fields ...func(e *zerolog.Event) *zerolog.Event) {
 }
 
 func Error(msg string, fields ...func(e *zerolog.Event) *zerolog.Event) {
-	e := app.NewLogger().Error()
+	e := logger.Error()
 	for _, f := range fields {
 		e = f(e)
 	}
@@ -57,11 +60,11 @@ func Error(msg string, fields ...func(e *zerolog.Event) *zerolog.Event) {
 }
 
 func Errorf(format string, args ...interface{}) {
-	app.NewLogger().Error().Msgf(format, args...)
+	logger.Error().Msgf(format, args...)
 }
 
 func Fatal(msg string, fields ...func(e *zerolog.Event) *zerolog.Event) {
-	e := app.NewLogger().Fatal()
+	e := logger.Fatal()
 	for _, f := range fields {
 		e = f(e)
 	}

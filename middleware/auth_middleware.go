@@ -65,7 +65,7 @@ func AuthMiddleware(next httprouter.Handle) httprouter.Handle {
 
 		exp, err := app.RedisClient.Get(context.Background(), claims.Email).Result()
 		if errors.Is(err, redis.Nil) {
-			logx.Info("Token is valid")
+			logx.Info(ctx, "Token is valid")
 		} else if err != nil {
 			logx.Infof("Error when retrieve data from Redis: %v", err)
 			res.Code = http.StatusInternalServerError
@@ -74,7 +74,7 @@ func AuthMiddleware(next httprouter.Handle) httprouter.Handle {
 			return
 		} else {
 			if logoutOn, _ := strconv.Atoi(exp); logoutOn > claims.Iat {
-				logx.Info("Token is invalid")
+				logx.Info(ctx, "Token is invalid")
 				res.Code = http.StatusUnauthorized
 				res.Status = "UNAUTHORIZED"
 				api.WriteToResponseBody(w, res.Code, res)
