@@ -20,11 +20,19 @@ func GetDBConn() string {
 }
 
 func GetDBMinConn() int32 {
-	return viper.GetInt32("db.pakaiwa.MinConns")
+	minConn := viper.GetInt32("db.pakaiwa.MinConns")
+	if minConn <= 0 {
+		minConn = 1
+	}
+	return minConn
 }
 
 func GetDBMaxConn() int32 {
-	return viper.GetInt32("db.pakaiwa.MaxConns")
+	maxConn := viper.GetInt32("db.pakaiwa.MaxConns")
+	if maxConn <= 0 {
+		maxConn = 10
+		return maxConn
+	}
 }
 
 func GetDBHealthCheckPeriod() time.Duration {
