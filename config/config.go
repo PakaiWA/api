@@ -31,8 +31,8 @@ func GetDBMaxConn() int32 {
 	maxConn := viper.GetInt32("db.pakaiwa.MaxConns")
 	if maxConn <= 0 {
 		maxConn = 10
-		return maxConn
 	}
+	return maxConn
 }
 
 func GetDBHealthCheckPeriod() time.Duration {
