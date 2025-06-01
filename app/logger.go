@@ -52,7 +52,8 @@ func NewLogger() *zerolog.Logger {
 
 			outFile, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "[PERINGATAN] Gagal membuka berkas log '%s': %v. Log hanya akan tampil di konsol.\n", path, err)
+				fmt.Fprintf(os.Stderr, "[PERINGATAN] Gagal membuka berkas log '%s': %v. Log ke berkas dinonaktifkan.\n", path, err)
+				logFileAttemptedAndFailed = true
 			} else {
 				logFileWriter = outFile
 			}
@@ -65,16 +66,15 @@ func NewLogger() *zerolog.Logger {
 		}
 
 		zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
-		level := getLogLevel()
 		logger = zerolog.New(finalWriter).
-			Level(level).
+			Level(currentLevel).
 			With().
 			Timestamp().
 			Logger()
 
-		logger.Info().Msgf("Inisialisasi logger selesai. Level log: %s.", level)
+		logger.Debug().Str("trace_id", config.Get40Space()).Msgf("Inisialisasi logger selesai. Level log: %s.", currentLevel.String())
 		if logFileWriter == nil {
-			logger.Warn().Msg("Logging ke berkas tidak berhasil, log hanya akan tampil di konsol.")
+			logger.Warn().Str("trace_id", config.Get40Space()).Msg("Logging ke berkas tidak berhasil, log hanya akan tampil di konsol.")
 		}
 	})
 

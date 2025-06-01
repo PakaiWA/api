@@ -12,6 +12,7 @@ package config
 
 import (
 	"github.com/spf13/viper"
+	"strings"
 	"time"
 )
 
@@ -64,3 +65,7 @@ func GetRedisHost() string { return viper.GetString("redis.host") }
 func GetRedisPassword() string { return viper.GetString("redis.password") }
 
 func GetLogLevel() string { return viper.GetString("log.level") }
+
+func Get40Space() string {
+	return strings.Repeat(" ", 40)
+}
