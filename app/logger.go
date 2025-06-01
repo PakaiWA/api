@@ -32,11 +32,15 @@ var (
 func NewLogger() *zerolog.Logger {
 	once.Do(func() {
 		logDir := "logs"
-		var logFileWriter io.Writer
+		var logFileFailed bool
 		var finalWriter io.Writer
+		var logFileWriter io.Writer
+		currentLevel := getLogLevel()
 
+		// Logging to file
 		if err := os.MkdirAll(logDir, 0755); err != nil {
-			fmt.Fprintf(os.Stderr, "[WARN] Fail when create logs dir '%s': %v. Log only shown in console.\n", logDir, err)
+			logger.Warn().Str("trace_id", config.Get40Space()).Msgf("[WARN] Failed when creating log dir %s:%v. The log is only displayed in the console.", logDir, err)
+			logFileFailed = true
 		} else {
 			date := time.Now().Format("20060102")
 			idx := 0
@@ -52,17 +56,25 @@ func NewLogger() *zerolog.Logger {
 
 			outFile, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "[PERINGATAN] Gagal membuka berkas log '%s': %v. Log ke berkas dinonaktifkan.\n", path, err)
-				logFileAttemptedAndFailed = true
+				logger.Warn().Str("trace_id", config.Get40Space()).Msgf("[WARN] Failed to open log file %s: %v. Logging to the file is disabled.", path, err)
+				logFileFailed = true
 			} else {
 				logFileWriter = outFile
 			}
 		}
 
-		if logFileWriter != nil {
-			finalWriter = io.MultiWriter(os.Stdout, logFileWriter)
+		// Console logging
+		consoleWriter := zerolog.ConsoleWriter{
+			Out:        os.Stdout,
+			TimeFormat: time.RFC3339,
+		}
+
+		if logFileFailed {
+			logger.Warn().Str("trace_id", config.Get40Space()).Msg("Logging to the file is not successful, the log will only appear on the console.")
+			finalWriter = consoleWriter
 		} else {
-			finalWriter = os.Stdout
+			fmt.Println("INIT ALL")
+			finalWriter = io.MultiWriter(consoleWriter, logFileWriter)
 		}
 
 		zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
@@ -72,10 +84,7 @@ func NewLogger() *zerolog.Logger {
 			Timestamp().
 			Logger()
 
-		logger.Debug().Str("trace_id", config.Get40Space()).Msgf("Inisialisasi logger selesai. Level log: %s.", currentLevel.String())
-		if logFileWriter == nil {
-			logger.Warn().Str("trace_id", config.Get40Space()).Msg("Logging ke berkas tidak berhasil, log hanya akan tampil di konsol.")
-		}
+		logger.Debug().Str("trace_id", config.Get40Space()).Msgf("Logger initialization complete. Log level: %s.", currentLevel.String())
 	})
 
 	return &logger
